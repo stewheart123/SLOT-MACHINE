@@ -58,7 +58,7 @@ function onAssetsLoaded() {
 
   //background rack
   const rackContainer = new PIXI.Container();
-  rackContainer.width = 797;
+
   rackContainer.height = 721;
   rackContainer.zIndex = 1;
   rackContainer.pivot.set(0.5, 1);
@@ -83,22 +83,11 @@ function onAssetsLoaded() {
   gameDisplayMonitor.beginFill("#000000");
   gameDisplayMonitor.drawRoundedRect(0, 0, 534, 387, 21);
   gameDisplayMonitor.endFill();
-  console.log(rackContainer.width);
-  console.log(gameDisplayMonitor.width);
-  //fixes monitor in incorrect position
-  if (rackContainer.width < 2) {
-    rackSprite.texture.baseTexture.on("loaded", () => {
-      gameDisplayMonitor.position.set(
-        rackContainer.width / 2 - gameDisplayMonitor.width / 2,
-        150
-      );
-    });
-  } else {
-    gameDisplayMonitor.position.set(
-      rackContainer.width / 2 - gameDisplayMonitor.width / 2,
-      50
-    );
-  }
+
+  gameDisplayMonitor.position.set(
+    app.view.width / 2 - gameDisplayMonitor.width / 2,
+    400
+  );
 
   gameDisplayMonitor.filters = [
     new PIXI.filters.DropShadowFilter({
@@ -108,7 +97,7 @@ function onAssetsLoaded() {
     }),
   ];
 
-  rackContainer.addChild(gameDisplayMonitor);
+  app.stage.addChild(gameDisplayMonitor);
 
   //controls container
   const controlsContainer = new PIXI.Container();
@@ -284,7 +273,6 @@ function onAssetsLoaded() {
   ];
 
   // Build the reels
-
   const reelContainer = new PIXI.Container();
   for (let i = 0; i < 5; i++) {
     const rc = new PIXI.Container();
@@ -319,6 +307,7 @@ function onAssetsLoaded() {
     }
     reels.push(reel);
   }
+
   gameDisplayMonitor.addChild(reelContainer);
 
   // Reels done handler.
