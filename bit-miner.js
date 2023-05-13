@@ -74,6 +74,7 @@ function onAssetsLoaded() {
     PIXI.Texture.from("assets/images/rack off.png")
   );
   app.stage.addChild(rackContainer);
+
   rackContainer.addChild(rackSprite);
 
   setRackState();
@@ -86,7 +87,7 @@ function onAssetsLoaded() {
 
   gameDisplayMonitor.position.set(
     app.view.width / 2 - gameDisplayMonitor.width / 2,
-    400
+    350
   );
 
   gameDisplayMonitor.filters = [
@@ -98,6 +99,17 @@ function onAssetsLoaded() {
   ];
 
   app.stage.addChild(gameDisplayMonitor);
+
+  //mask area for reels
+  const maskGraphics = new PIXI.Graphics();
+
+  maskGraphics.beginFill(0xff0000);
+  maskGraphics.drawRect(0, 0, gameDisplayMonitor.width, 310);
+  maskGraphics.endFill();
+  maskGraphics.position.y = 0;
+  gameDisplayMonitor.mask = maskGraphics;
+
+  gameDisplayMonitor.addChild(maskGraphics);
 
   //controls container
   const controlsContainer = new PIXI.Container();
