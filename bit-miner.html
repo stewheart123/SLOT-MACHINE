@@ -31,6 +31,9 @@
   </head>
   <body>
     <script>
+        //game variables
+        let hasPower = true;
+
       const app = new PIXI.Application({
         background: "#000",
         height: window.innerHeight,
@@ -48,8 +51,8 @@
       // Add the sprite to the stage as the first child
       app.stage.addChildAt(bgSprite, 0);
 
+      //title 
       const titleContainer = new PIXI.Container();
-
       const gameTitle = new PIXI.Text("BIT-MINER", {
         fontSize: 64,
         fill: 0xffffff,
@@ -69,6 +72,37 @@
       titleContainer.position.set(app.view.width / 2, 80);
       titleContainer.addChild(gameTitle);
       app.stage.addChild(titleContainer);
+
+      //background rack
+      const rackContainer = new PIXI.Container();
+      rackContainer.width = 797;
+      rackContainer.height = 721;
+      rackContainer.pivot.set(0.5, 1);
+      rackContainer.position.set((app.view.width /2) - (797 /2), app.view.height - 721);
+      
+      const rackOffSprite = PIXI.Sprite.from(
+        "assets/images/rack off.png"
+      );
+      rackOffSprite.width = 797;
+      rackOffSprite.height = 721;
+      rackContainer
+
+      const rackOnSprite = PIXI.Sprite.from(
+        "assets/images/rack on.png"
+      );
+      rackOffSprite.width = 797;
+      rackOffSprite.height = 721;
+    
+      // Add the sprite to the stage as the first child
+      if(!hasPower) {
+          rackContainer.addChild(rackOffSprite);
+      }
+      else {
+        rackContainer.addChild(rackOnSprite);
+      }
+      app.stage.addChild(rackContainer);
+
+
     </script>
   </body>
 </html>
