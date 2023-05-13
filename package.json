@@ -1,0 +1,25 @@
+{
+  "name": "slot-machine",
+  "version": "1.0.0",
+  "description": "PIXIjs slot machine demo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stewheart123/SLOT-MACHINE.git"
+  },
+  "keywords": [
+    "pixi"
+  ],
+  "author": "Stewart Tuckwood",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stewheart123/SLOT-MACHINE/issues"
+  },
+  "homepage": "https://github.com/stewheart123/SLOT-MACHINE#readme",
+  "dependencies": {
+    "pixi-filters": "^5.2.1"
+  }
+}
