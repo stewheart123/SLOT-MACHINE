@@ -67,6 +67,39 @@ document.addEventListener("DOMContentLoaded", function() {
 
  setRackState();
 
+  //game display
+  const gameDisplayMonitor = new PIXI.Graphics();
+  gameDisplayMonitor.beginFill("#000000");
+  gameDisplayMonitor.drawRoundedRect(0, 0, 534, 387, 21);
+  gameDisplayMonitor.endFill();
+  console.log(rackContainer.width);
+  console.log(gameDisplayMonitor.width);
+  //fixes monitor in incorrect position
+  if(rackContainer.width < 2) {
+      rackSprite.texture.baseTexture.on("loaded", () => {
+            gameDisplayMonitor.position.set(
+              rackContainer.width / 2 - gameDisplayMonitor.width / 2,
+              150
+            );
+      });
+
+    } else {
+        gameDisplayMonitor.position.set(
+            rackContainer.width / 2 - gameDisplayMonitor.width / 2,
+            150
+          );
+    }
+  
+  gameDisplayMonitor.filters = [
+    new PIXI.filters.DropShadowFilter({
+      distance: 10,
+      blur: 23,
+      alpha: 0.9,
+    }),
+  ];
+ 
+  rackContainer.addChild(gameDisplayMonitor);
+
  //controls container
  const controlsContainer = new PIXI.Container();
  const controlsPanel = new PIXI.Graphics();
@@ -100,40 +133,6 @@ document.addEventListener("DOMContentLoaded", function() {
    setRackState();
  });
 
-  //game display
-  const gameDisplayMonitor = new PIXI.Graphics();
-  gameDisplayMonitor.beginFill("#000000");
-  gameDisplayMonitor.drawRoundedRect(0, 0, 534, 387, 21);
-  gameDisplayMonitor.endFill();
-  console.log(rackContainer.width);
-  console.log(gameDisplayMonitor.width);
-  //fixes monitor in incorrect position
-  if(rackContainer.width < 2) {
-      rackSprite.texture.baseTexture.on("loaded", () => {
-            gameDisplayMonitor.position.set(
-              rackContainer.width / 2 - gameDisplayMonitor.width / 2,
-              150
-            );
-      });
-
-    } else {
-        gameDisplayMonitor.position.set(
-            rackContainer.width / 2 - gameDisplayMonitor.width / 2,
-            150
-          );
-    }
-  
-
-  gameDisplayMonitor.filters = [
-    new PIXI.filters.DropShadowFilter({
-      distance: 10,
-      blur: 23,
-      alpha: 0.9,
-    }),
-  ];
- 
-  rackContainer.addChild(gameDisplayMonitor);
-
  const purchaseButtonText = new PIXI.Text("PURCHASE VOLTS", {
    fontSize: 24,
    fill: 0xc7d4ff,
@@ -146,7 +145,30 @@ document.addEventListener("DOMContentLoaded", function() {
  purchasePowerContainer.addChild(purchaseButtonText);
 
  //mine button ( a.k.a. spin)
+ const mineButtonSprite = PIXI.Sprite.from(
+    "assets/images/mine-button-blue.png"
+  );
 
+  mineButtonSprite.width = 189;
+  mineButtonSprite.height = 186;
+  controlsContainer.addChild(mineButtonSprite);
+  mineButtonSprite.position.y = -30;
+  mineButtonSprite.position.x = controlsContainer.width - mineButtonSprite.width;
+
+  const playIcon = PIXI.Sprite.from(
+    "assets/images/Polygon 1.png"
+  );
+  playIcon.position.y = (186 / 2) +  120;
+  playIcon.position.x = 270;
+  playIcon.filters = [
+    new PIXI.filters.DropShadowFilter({
+      distance: 5,
+      blur: 2,
+      alpha: 1,
+    }),
+  ];
+  mineButtonSprite.addChild(playIcon);
+  
  //game status text
 
  function setRackState() {
