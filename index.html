@@ -11,6 +11,7 @@
   <script>
     const app = new PIXI.Application({ 
         background: '#ffffff',
+        height: 900
      });
 document.body.appendChild(app.view);
 
@@ -23,6 +24,12 @@ PIXI.Assets.load([
 
 const REEL_WIDTH = 160;
 const SYMBOL_SIZE = 150;
+
+/* 
+Game Variables
+*/
+let spinsRemaining = 2;
+let fundsPositive = true;
 
 // onAssetsLoaded handler builds the example.
 function onAssetsLoaded() {
@@ -68,7 +75,8 @@ function onAssetsLoaded() {
     app.stage.addChild(reelContainer);
 
     // Build top & bottom covers and position reelContainer
-    const margin = (app.screen.height - SYMBOL_SIZE * 3) / 2;
+    // const margin = (app.screen.height - SYMBOL_SIZE * 3) / 2;
+    const margin = 100;
     reelContainer.y = margin;
     reelContainer.x = Math.round(app.screen.width - REEL_WIDTH * 5);
     const top = new PIXI.Graphics();
@@ -77,6 +85,11 @@ function onAssetsLoaded() {
     const bottom = new PIXI.Graphics();
     bottom.beginFill(0, 1);
     bottom.drawRect(0, SYMBOL_SIZE * 3 + margin, app.screen.width, margin);
+    
+    const gameInfoContainer = new PIXI.Graphics();
+    gameInfoContainer.beginFill('#ff0000');
+    gameInfoContainer.drawRect(0, 0, app.screen.width, margin);
+    gameInfoContainer.y = SYMBOL_SIZE * 4 + 50;
 
     // Add play text
     const style = new PIXI.TextStyle({
@@ -98,7 +111,7 @@ function onAssetsLoaded() {
 
     const playText = new PIXI.Text('Spin the wheels!', style);
     playText.x = Math.round((bottom.width - playText.width) / 2);
-    playText.y = app.screen.height - margin + Math.round((margin - playText.height) / 2);
+    playText.y = app.screen.height - 350 + Math.round((margin - playText.height) / 2);
     bottom.addChild(playText);
 
     // Add header text
@@ -107,8 +120,15 @@ function onAssetsLoaded() {
     headerText.y = Math.round((margin - headerText.height) / 2);
     top.addChild(headerText);
 
+    //game info text
+    const remainingSpinsText = new PIXI.Text('Spins Remaining: ' + spinsRemaining, style);
+      remainingSpinsText.x = 0;
+      remainingSpinsText.y = 0;
+     gameInfoContainer.addChild(remainingSpinsText);
+
      app.stage.addChild(top);
      app.stage.addChild(bottom);
+     app.stage.addChild(gameInfoContainer);
 
     // Set the interactivity.
     bottom.interactive = true;
@@ -118,24 +138,32 @@ function onAssetsLoaded() {
     });
 
     let running = false;
+    console.log(gameInfoContainer);
 
     // Function to start playing.
     function startPlay() {
-        if (running) return;
-        running = true;
-
-        for (let i = 0; i < reels.length; i++) {
-            const r = reels[i];
-            const extra = Math.floor(Math.random() * 3);
-            const target = r.position + 10 + i * 5 + extra;
-            const time = 2500 + i * 600 + extra * 600;
-            tweenTo(r, 'position', target, time, backout(0.5), null, i === reels.length - 1 ? reelsComplete : null);
+        checkFunds(remainingSpinsText);
+        if (fundsPositive) {
+            if (running) return;
+            running = true;
+            bottom.interactive = false;
+            spinsRemaining--;
+            remainingSpinsText.text= 'Spins Remaining: ' + spinsRemaining;
+    
+            for (let i = 0; i < reels.length; i++) {
+                const r = reels[i];
+                const extra = Math.floor(Math.random() * 3);
+                const target = r.position + 10 + i * 5 + extra;
+                const time = 2500 + i * 600 + extra * 600;
+                tweenTo(r, 'position', target, time, backout(0.5), null, i === reels.length - 1 ? reelsComplete : null);
+            }
         }
     }
 
     // Reels done handler.
     function reelsComplete() {
         running = false;
+        bottom.interactive = true;
     }
 
     // Listen for animate update.
@@ -215,6 +243,18 @@ function backout(amount) {
     return (t) => (--t * t * ((amount + 1) * t + amount) + 1);
 }
 
+function checkFunds(textObject) {
+    if(spinsRemaining > 0) {
+        fundsPositive = true;
+    }
+    else {
+        fundsPositive = false;
+        textObject.text= 'Funds depleted';
+    }
+}
+function topUpFunds() {
+    spinsRemaining +=10;
+}
 
   </script>
   
