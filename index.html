@@ -9,7 +9,9 @@
 </head>
 <body>
   <script>
-    const app = new PIXI.Application({ background: '#ffffff' });
+    const app = new PIXI.Application({ 
+        background: '#ffffff',
+     });
 document.body.appendChild(app.view);
 
 PIXI.Assets.load([
@@ -105,8 +107,8 @@ function onAssetsLoaded() {
     headerText.y = Math.round((margin - headerText.height) / 2);
     top.addChild(headerText);
 
-    app.stage.addChild(top);
-    app.stage.addChild(bottom);
+     app.stage.addChild(top);
+     app.stage.addChild(bottom);
 
     // Set the interactivity.
     bottom.interactive = true;
