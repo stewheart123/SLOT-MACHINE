@@ -327,6 +327,7 @@ function onAssetsLoaded() {
     spinning = false;
     setMineButtonState();
     setRackState();
+    checkReels();
   }
 
   // Listen for animate update.
@@ -358,6 +359,21 @@ function onAssetsLoaded() {
       }
     }
   });
+
+  function checkReels() {
+    setTimeout(() => {
+        console.clear();
+        reels.forEach(element => {
+            
+            element.container.children.forEach(element => {
+              console.log(element.texture.textureCacheIds);
+            });
+            console.log('-----------');
+            
+            //console.log(reels[i].container.children[0].texture.textureCacheIds);
+        });
+    }, 500);
+  }
 
   // Very simple tweening utility function. This should be replaced with a proper tweening library in a real product.
   const tweening = [];
@@ -436,7 +452,7 @@ function onAssetsLoaded() {
         "position",
         target,
         time,
-        backout(0.5),
+        backout(0.1),
         null,
         i === reels.length - 1 ? reelsComplete : null
       );
