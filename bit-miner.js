@@ -3,7 +3,13 @@ document.addEventListener("DOMContentLoaded", function() {
   });
   
  //game variables
- let hasPower = false;
+ let hasWatts = false;
+ let watts = 0;
+ let funds = 1000000;
+
+ //art variables
+ let alphaFilterInactive = new PIXI.filters.AlphaFilter(0.5); 
+ let alphaFilterFull = new PIXI.filters.AlphaFilter(1);
 
  const app = new PIXI.Application({
    background: "#000",
@@ -115,34 +121,39 @@ document.addEventListener("DOMContentLoaded", function() {
  );
  app.stage.addChild(controlsContainer);
 
- //purchase power button
- const purchasePowerContainer = new PIXI.Container();
- const purchasePowerSprite = PIXI.Sprite.from(
+ //purchase watts button
+ const purchaseWattsContainer = new PIXI.Container();
+ const purchaseWattsSprite = PIXI.Sprite.from(
    "assets/images/mine-button.png"
  );
- purchasePowerSprite.width = 189;
- purchasePowerSprite.height = 186;
- purchasePowerContainer.addChild(purchasePowerSprite);
- purchasePowerSprite.position.y = -30;
- controlsContainer.addChild(purchasePowerContainer);
- purchasePowerSprite.interactive = true;
- purchasePowerSprite.cursor = "pointer";
+ purchaseWattsSprite.width = 189;
+ purchaseWattsSprite.height = 186;
+ purchaseWattsContainer.addChild(purchaseWattsSprite);
+ purchaseWattsSprite.position.y = -30;
+ controlsContainer.addChild(purchaseWattsContainer);
+ purchaseWattsSprite.interactive = true;
+ purchaseWattsSprite.cursor = "pointer";
 
- purchasePowerSprite.addListener("pointerdown", () => {
-   hasPower = !hasPower;
+ purchaseWattsSprite.addListener("pointerdown", () => {
+   hasWatts = !hasWatts;
    setRackState();
+   mineButtonSprite.filters = [alphaFilterFull];
+   mineButtonSprite.interactive = true;
+   watts = watts += 1000;
+   setWattsText();
+
  });
 
- const purchaseButtonText = new PIXI.Text("PURCHASE VOLTS", {
+ const purchaseButtonText = new PIXI.Text("PURCHASE WATTS", {
    fontSize: 24,
    fill: 0xc7d4ff,
    fontFamily: "Share Tech Mono",
  });
  purchaseButtonText.position.set(
    0,
-   purchasePowerContainer.height - purchaseButtonText.height * 2
+   purchaseWattsContainer.height - purchaseButtonText.height * 2
  );
- purchasePowerContainer.addChild(purchaseButtonText);
+ purchaseWattsContainer.addChild(purchaseButtonText);
 
  //mine button ( a.k.a. spin)
  const mineButtonSprite = PIXI.Sprite.from(
@@ -154,6 +165,12 @@ document.addEventListener("DOMContentLoaded", function() {
   controlsContainer.addChild(mineButtonSprite);
   mineButtonSprite.position.y = -30;
   mineButtonSprite.position.x = controlsContainer.width - mineButtonSprite.width;
+  mineButtonSprite.cursor = "pointer";
+  mineButtonSprite.filters = [alphaFilterInactive];
+
+  mineButtonSprite.addListener("pointerdown", () => {
+    console.log('spin!');     
+  });
 
   const playIcon = PIXI.Sprite.from(
     "assets/images/Polygon 1.png"
@@ -170,18 +187,47 @@ document.addEventListener("DOMContentLoaded", function() {
   mineButtonSprite.addChild(playIcon);
   
  //game status text
+ const textInfoContainer = new PIXI.Container();
+ let wattsStatusText = new PIXI.Text("WATTS : " + watts, {
+   fontSize: 36,
+   fill: "#C7D4FF",
+   fontFamily: "Share Tech Mono",
+   padding: 20,
+ });
+
+
+ textInfoContainer.position.x = purchaseWattsContainer.width + 30;
+ textInfoContainer.position.y = 30;
+ textInfoContainer.addChild(wattsStatusText);
+
+ //funds text
+ let fundsText = new PIXI.Text("FUNDS : " + funds, {
+    fontSize: 36,
+   fill: "#C7D4FF",
+   fontFamily: "Share Tech Mono",
+   padding: 20,
+ });
+ fundsText.position.y = 70;
+ textInfoContainer.addChild(fundsText);
+ controlsContainer.addChild(textInfoContainer);
 
  function setRackState() {
-   if (!hasPower) {
+   if (!hasWatts) {
      const newSprite = new PIXI.Sprite(
        PIXI.Texture.from("/assets/images/rack off.png")
      );
      rackSprite.texture = newSprite.texture;
+     
    } else {
      const newSprite = new PIXI.Sprite(
        PIXI.Texture.from("/assets/images/rack on.png")
      );
      rackSprite.texture = newSprite.texture;
+     
    }
    //   app.stage.addChild(rackContainer);
- }
+}
+
+function setWattsText() {
+ wattsStatusText.text = "WATTS : " + watts;
+}
