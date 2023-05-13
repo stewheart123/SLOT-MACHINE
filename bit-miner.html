@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      body {
+        margin: 0;
+        background-color: black;
+      }
+      canvas {
+        display: block;
+        max-width: 1920px;
+        margin: auto;
+      }
+    </style>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://pixijs.download/release/pixi.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+    <script>
+      WebFont.load({
+        google: {
+          families: ["Sigmar"],
+        },
+        active: (e) => {
+          console.log("font loaded!");
+        },
+      });
+    </script>
+    <title>BIT-MINER</title>
+  </head>
+  <body>
+    <script>
+      const app = new PIXI.Application({
+        background: "#000",
+        height: window.innerHeight,
+        width: window.innerWidth,
+      });
+
+      document.body.appendChild(app.view);
+
+      const bgSprite = PIXI.Sprite.from(
+        "assets/images/background-server-room.jpg"
+      );
+      bgSprite.width = app.screen.width;
+      bgSprite.height = app.screen.height;
+
+      // Add the sprite to the stage as the first child
+      app.stage.addChildAt(bgSprite, 0);
+
+      const titleContainer = new PIXI.Container();
+
+      const gameTitle = new PIXI.Text("BIT-MINER", {
+        fontSize: 64,
+        fill: 0xffffff,
+        fontFamily: "Sigmar",
+        textAlign: "center",
+        dropShadow: true,
+        dropShadowColor: "#51D5FF",
+        dropShadowBlur: 16,
+        padding: 20,
+      });
+      gameTitle.anchor.set(0.5);
+      gameTitle.position.set(
+        titleContainer.width / 2,
+        titleContainer.height / 2
+      );
+
+      titleContainer.position.set(app.view.width / 2, 80);
+      titleContainer.addChild(gameTitle);
+      app.stage.addChild(titleContainer);
+    </script>
+  </body>
+</html>

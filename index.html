@@ -109,7 +109,7 @@ function onAssetsLoaded() {
         wordWrapWidth: 440,
     });
 
-    const playText = new PIXI.Text('Spin the wheels!', style);
+    const playText = new PIXI.Text('Spin', style);
     playText.x = Math.round((bottom.width - playText.width) / 2);
     playText.y = app.screen.height - 350 + Math.round((margin - playText.height) / 2);
     bottom.addChild(playText);
