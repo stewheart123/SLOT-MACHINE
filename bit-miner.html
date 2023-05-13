@@ -102,6 +102,15 @@
       }
       app.stage.addChild(rackContainer);
 
+      //game display
+      const gameDisplayMonitor = new PIXI.Graphics();
+      gameDisplayMonitor.beginFill('#000000');
+      gameDisplayMonitor.drawRoundedRect(0, 0, 534, 387, 21);
+      gameDisplayMonitor.endFill();    
+      gameDisplayMonitor.position.set((rackContainer.width/ 2 - gameDisplayMonitor.width / 2), 150);
+      //gameDisplayMonitor.filters = [new PIXI.filters.DropShadowFilter({ distance: 10, blur: 5, alpha: 0.5 })];
+
+        rackContainer.addChild(gameDisplayMonitor);
 
     </script>
   </body>
