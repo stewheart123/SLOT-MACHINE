@@ -5,7 +5,10 @@ document.addEventListener("DOMContentLoaded", function() {
  //game variables
  let hasWatts = false;
  let watts = 0;
- let funds = 1000000;
+ let funds = 1000;
+
+ //game states
+ let spinning = false;
 
  //art variables
  let alphaFilterInactive = new PIXI.filters.AlphaFilter(0.5); 
@@ -135,12 +138,11 @@ document.addEventListener("DOMContentLoaded", function() {
  purchaseWattsSprite.cursor = "pointer";
 
  purchaseWattsSprite.addListener("pointerdown", () => {
-   hasWatts = !hasWatts;
-   setRackState();
-   mineButtonSprite.filters = [alphaFilterFull];
-   mineButtonSprite.interactive = true;
-   watts = watts += 1000;
-   setWattsText();
+     mineButtonSprite.filters = [alphaFilterFull];
+     mineButtonSprite.interactive = true;
+    
+     buyWatts();
+     setRackState();   
 
  });
 
@@ -169,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function() {
   mineButtonSprite.filters = [alphaFilterInactive];
 
   mineButtonSprite.addListener("pointerdown", () => {
-    console.log('spin!');     
+    spin(); 
   });
 
   const playIcon = PIXI.Sprite.from(
@@ -212,6 +214,12 @@ document.addEventListener("DOMContentLoaded", function() {
  controlsContainer.addChild(textInfoContainer);
 
  function setRackState() {
+    if(watts > 1) {
+        hasWatts = true;
+    }
+    else {
+        hasWatts = false;
+    }
    if (!hasWatts) {
      const newSprite = new PIXI.Sprite(
        PIXI.Texture.from("/assets/images/rack off.png")
@@ -223,11 +231,37 @@ document.addEventListener("DOMContentLoaded", function() {
        PIXI.Texture.from("/assets/images/rack on.png")
      );
      rackSprite.texture = newSprite.texture;
-     
    }
-   //   app.stage.addChild(rackContainer);
 }
 
-function setWattsText() {
+function setGameInfoText() {
  wattsStatusText.text = "WATTS : " + watts;
+ fundsText.text = "FUNDS :" + funds;
+}
+
+function buyWatts(){
+    if(funds >= 500) {
+        funds -= 500;
+        watts += 500
+    }
+    if(funds < 1) {
+        purchaseWattsSprite.interactive = false;
+        purchaseWattsSprite.filters = [alphaFilterInactive];
+    }
+    setGameInfoText();
+    setRackState();
+}
+
+function spin(){
+    console.log('spin called!');    
+    if(watts >= 100) {
+        spinning = true;
+        watts -=100;
+        setGameInfoText();      
+        setRackState();
+    }
+    if(spinning) {
+        mineButtonSprite.interactive = false;
+        mineButtonSprite.filters = [alphaFilterInactive];
+    }
 }
