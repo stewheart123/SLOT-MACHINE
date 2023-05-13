@@ -21,7 +21,7 @@
     <script>
       WebFont.load({
         google: {
-          families: ["Sigmar"],
+          families: ["Sigmar", "Share Tech Mono" ],
         },
         active: (e) => {
           console.log("font loaded!");
@@ -32,8 +32,8 @@
   </head>
   <body>
     <script>
-        //game variables
-        let hasPower = true;
+      //game variables
+      let hasPower = true;
 
       const app = new PIXI.Application({
         background: "#000",
@@ -52,7 +52,7 @@
       // Add the sprite to the stage as the first child
       app.stage.addChildAt(bgSprite, 0);
 
-      //title 
+      //title
       const titleContainer = new PIXI.Container();
       const gameTitle = new PIXI.Text("BIT-MINER", {
         fontSize: 64,
@@ -78,41 +78,104 @@
       const rackContainer = new PIXI.Container();
       rackContainer.width = 797;
       rackContainer.height = 721;
+      rackContainer.zIndex = 1;
       rackContainer.pivot.set(0.5, 1);
-      rackContainer.position.set((app.view.width /2) - (797 /2), app.view.height - 721);
-      
-      const rackOffSprite = PIXI.Sprite.from(
-        "assets/images/rack off.png"
+      rackContainer.position.set(
+        app.view.width / 2 - 797 / 2,
+        app.view.height - 721
       );
-      rackOffSprite.width = 797;
-      rackOffSprite.height = 721;
-      rackContainer
 
-      const rackOnSprite = PIXI.Sprite.from(
-        "assets/images/rack on.png"
-      );
+      let rackOffSprite = PIXI.Sprite.from("assets/images/rack off.png");
       rackOffSprite.width = 797;
       rackOffSprite.height = 721;
-    
-      // Add the sprite to the stage as the first child
-      if(!hasPower) {
-          rackContainer.addChild(rackOffSprite);
-      }
-      else {
-        rackContainer.addChild(rackOnSprite);
-      }
+      //rackContainer;
+
+      let rackOnSprite = PIXI.Sprite.from("assets/images/rack on.png");
+      rackOffSprite.width = 797;
+      rackOffSprite.height = 721;
+      
       app.stage.addChild(rackContainer);
+
+      // Add the sprite to the stage as the first child
+      setRackState();
 
       //game display
       const gameDisplayMonitor = new PIXI.Graphics();
-      gameDisplayMonitor.beginFill('#000000');
+      gameDisplayMonitor.beginFill("#000000");
       gameDisplayMonitor.drawRoundedRect(0, 0, 534, 387, 21);
-      gameDisplayMonitor.endFill();    
-      gameDisplayMonitor.position.set((rackContainer.width/ 2 - gameDisplayMonitor.width / 2), 150);
-     gameDisplayMonitor.filters = [new PIXI.filters.DropShadowFilter({ distance: 10, blur: 23, alpha: 0.9 })];
+      gameDisplayMonitor.endFill();
+      gameDisplayMonitor.position.set(
+        rackContainer.width / 2 - gameDisplayMonitor.width / 2,
+        150
+      );
+      gameDisplayMonitor.filters = [
+        new PIXI.filters.DropShadowFilter({
+          distance: 10,
+          blur: 23,
+          alpha: 0.9,
+        }),
+      ];
 
-        rackContainer.addChild(gameDisplayMonitor);
+      rackContainer.addChild(gameDisplayMonitor);
 
+      //controls container
+      const controlsContainer = new PIXI.Container();
+      const controlsPanel = new PIXI.Graphics();
+      controlsPanel.lineStyle(2, 0x25EC5D, 0.4);
+      controlsPanel.beginFill(0x000000, 0.5);
+      controlsPanel.drawRect(0,0,764, 170);
+      controlsPanel.endFill();
+      controlsPanel.zIndex = 3;
+      controlsContainer.addChild(controlsPanel);
+      controlsContainer.position.set( (app.view.width /2) - (controlsContainer.width/2) , app.view.height - (controlsContainer.height + 20));
+      app.stage.addChild(controlsContainer);
+
+      //purchase power button
+      const purchasePowerContainer = new PIXI.Container();
+      const purchasePowerSprite = PIXI.Sprite.from("assets/images/mine-button.png");
+      purchasePowerSprite.width = 189;
+      purchasePowerSprite.height = 186;
+      purchasePowerContainer.addChild(purchasePowerSprite);
+      purchasePowerSprite.position.y = -30;
+      controlsContainer.addChild(purchasePowerContainer);
+      purchasePowerSprite.interactive = true;
+      purchasePowerSprite.cursor = 'pointer';
+      purchasePowerSprite.addListener('pointerdown', () => {
+        console.log(hasPower);
+        hasPower = !hasPower;
+        setRackState();
+
+    });
+
+      const purchaseButtonText = new PIXI.Text("PURCHASE VOLTS", {
+        fontSize: 24,
+        fill: 0xC7D4FF,
+        fontFamily: "Share Tech Mono",
+      });
+      purchaseButtonText.position.set(0, purchasePowerContainer.height - (purchaseButtonText.height * 2));
+    //   purchaseButtonText.anchor.set(0.5);
+    //   purchaseButtonText.position.set(
+    //     purchasePowerContainer.width / 2,
+    //     purchasePowerContainer.height / 2
+    //   );
+      purchasePowerContainer.addChild(purchaseButtonText);
+
+
+      //mine button ( a.k.a. spin)
+
+      //game status text
+
+      function setRackState() {
+        if (!hasPower) {
+            rackContainer.removeChild(rackOnSprite);
+        rackContainer.addChild(rackOffSprite);
+      } else {
+        rackContainer.removeChild(rackOffSprite);
+        rackContainer.addChild(rackOnSprite);
+      }
+    //   app.stage.addChild(rackContainer);
+      }
+      
     </script>
   </body>
 </html>
