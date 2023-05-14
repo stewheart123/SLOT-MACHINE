@@ -7,16 +7,21 @@ let rackContainerHeight = 721;
 let rackContainerWidth = 796;
 let rackContainerScale = 1;
 let gameDisplayMonitorWidth = 534;
-let gameDisplayMonitorY = 350;
+let gameDisplayMonitorY = 150;
 let lineIndicatorYOffset = 110;
 let maskGraphicsHeight = 310;
 let controlsPanelWidth = 764;
 let buttonDimensons = 189;
 let buttonYOffset = -30;
 let textInfoFontSize = 26
+let statusFontSize = 36;
+let controlsPanelHeight = 170;
+let fundsTextPosition = 70;
+let gameDisplayYOffset = 150;
+let rackContainerYOffset = 120;
 
 //responsie variables
-if(screenWidth < 768) {
+if(screenWidth < 550) {
   isMobile = true;
   console.log('mobile mode');
   titleFontSize = 50;
@@ -31,6 +36,11 @@ if(screenWidth < 768) {
   controlsPanelWidth = window.innerWidth;
   buttonDimensons = 140;
   buttonYOffset = -150;
+  statusFontSize = 20;
+  controlsPanelHeight = 100;
+  fundsTextPosition = 20;
+  gameDisplayYOffset = 0;
+  rackContainerYOffset = 40;  
 }
 
 //game variables
@@ -106,6 +116,14 @@ assetPromise.then((loadedAsset) => {
 
   const offSound = new Audio('assets/sounds/turn-off.mp3');
   offSound.volume = 0.5;
+
+  //silence sound mobile
+  if(isMobile) {
+    serverRoomSound.volume = 0;
+    mineSound.volume = 0;
+    winSound.volume = 0;
+    offSound.volume = 0;
+  }
     
   //game states
   const bgSprite = PIXI.Sprite.from(loadedAsset.background);
@@ -114,25 +132,6 @@ assetPromise.then((loadedAsset) => {
 
   // Add the sprite to the stage as the first child
   app.stage.addChildAt(bgSprite, 0);
-
-  //title
-  const titleContainer = new PIXI.Container();
-  const gameTitle = new PIXI.Text("BIT-MINER", {
-    fontSize: titleFontSize,
-    fill: 0xffffff,
-    fontFamily: "Sigmar",
-    textAlign: "center",
-    dropShadow: true,
-    dropShadowColor: "#51D5FF",
-    dropShadowBlur: 16,
-    padding: 20,
-  });
-  gameTitle.anchor.set(0.5);
-  gameTitle.position.set(titleContainer.width / 2, titleContainer.height / 2);
-
-  titleContainer.position.set(app.view.width / 2, titleDistance);
-  titleContainer.addChild(gameTitle);
-  app.stage.addChild(titleContainer);
   
   //Line indicator graphic
   const lineIndicator = new PIXI.Graphics();
@@ -164,7 +163,7 @@ assetPromise.then((loadedAsset) => {
   }
   else {
     rackContainer.position.set(
-      0,120);         
+      0, rackContainerYOffset);         
   }
   
   //the on/off sprite for the foreground mining rack
@@ -185,7 +184,7 @@ assetPromise.then((loadedAsset) => {
 
   gameDisplayMonitor.position.set(
     app.view.width / 2 - gameDisplayMonitor.width / 2,
-    gameDisplayMonitorY
+    rackContainer.position.y + gameDisplayYOffset
   );
 
   gameDisplayMonitor.filters = [
@@ -203,6 +202,25 @@ assetPromise.then((loadedAsset) => {
   app.stage.addChild(lineIndicator);
   app.stage.addChild(lineIndicatorInner);
 
+  //title
+  const titleContainer = new PIXI.Container();
+  const gameTitle = new PIXI.Text("BIT-MINER", {
+    fontSize: titleFontSize,
+    fill: 0xffffff,
+    fontFamily: "Sigmar",
+    textAlign: "center",
+    dropShadow: true,
+    dropShadowColor: "#51D5FF",
+    dropShadowBlur: 16,
+    padding: 20,
+  });
+  gameTitle.anchor.set(0.5);
+  gameTitle.position.set(titleContainer.width / 2, titleContainer.height / 2);
+  
+  titleContainer.position.set(app.view.width / 2, titleDistance);
+  titleContainer.addChild(gameTitle);
+  app.stage.addChild(titleContainer);
+
   //mask area for reels
   const maskGraphics = new PIXI.Graphics();
   maskGraphics.beginFill(0xff0000);
@@ -218,7 +236,7 @@ assetPromise.then((loadedAsset) => {
   const controlsPanel = new PIXI.Graphics();
   controlsPanel.lineStyle(2, 0x25ec5d, 0.4);
   controlsPanel.beginFill(0x000000, 0.5);
-  controlsPanel.drawRect(0, 0, controlsPanelWidth, 170);
+  controlsPanel.drawRect(0, 0, controlsPanelWidth, controlsPanelHeight);
   controlsPanel.endFill();
   controlsPanel.zIndex = 3;
   controlsContainer.addChild(controlsPanel);
@@ -235,7 +253,6 @@ assetPromise.then((loadedAsset) => {
   purchaseWattsSprite.width = buttonDimensons;
   purchaseWattsSprite.height = buttonDimensons;
   purchaseWattsContainer.addChild(purchaseWattsSprite);
-  //purchaseWattsSprite.position.y = buttonYOffset;
   purchaseWattsContainer.position.y = buttonYOffset;
   controlsContainer.addChild(purchaseWattsContainer);
   purchaseWattsSprite.interactive = true;
@@ -290,7 +307,7 @@ assetPromise.then((loadedAsset) => {
   //game status text
   const textInfoContainer = new PIXI.Container();
   let wattsStatusText = new PIXI.Text("WATTS : " + watts, {
-    fontSize: 36,
+    fontSize: statusFontSize,
     fill: "#C7D4FF",
     fontFamily: "Share Tech Mono",
     padding: 20,
@@ -307,12 +324,12 @@ assetPromise.then((loadedAsset) => {
 
   //funds text
   let fundsText = new PIXI.Text("FUNDS : " + funds, {
-    fontSize: 36,
+    fontSize: statusFontSize,
     fill: "#C7D4FF",
     fontFamily: "Share Tech Mono",
     padding: 20,
   });
-  fundsText.position.y = 70;
+  fundsText.position.y = fundsTextPosition;
   textInfoContainer.addChild(fundsText);
   controlsContainer.addChild(textInfoContainer);
     // Create different slot symbols.
@@ -374,7 +391,7 @@ assetPromise.then((loadedAsset) => {
 
   function setGameInfoText() {
     wattsStatusText.text = "WATTS : " + watts;
-    fundsText.text = "FUNDS :" + funds;
+    fundsText.text = "FUNDS : " + funds;
   }
 
   function buyWatts() {
