@@ -1,26 +1,9 @@
-document.addEventListener("DOMContentLoaded", function () {
-  // your code here
-});
-
 //game variables
 let hasWatts = false;
 let watts = 0;
 let funds = 1000;
 const reels = [];
-
-PIXI.Assets.load([
-  "assets/images/red.png",
-  "assets/images/orange.png",
-  "assets/images/blue.png",
-  "assets/images/green.png",
-]).then(onAssetsLoaded);
-
-//game states
 let spinning = false;
-
-//art variables
-let colorMatrixPurchase = new PIXI.filters.ColorMatrixFilter();
-let colorMatrixMine = new PIXI.filters.ColorMatrixFilter();
 
 const app = new PIXI.Application({
   background: "#000",
@@ -29,8 +12,39 @@ const app = new PIXI.Application({
 });
 
 document.body.appendChild(app.view);
-function onAssetsLoaded() {
-  const bgSprite = PIXI.Sprite.from("assets/images/background-server-room.jpg");
+
+//art variables
+let colorMatrixPurchase = new PIXI.filters.ColorMatrixFilter();
+let colorMatrixMine = new PIXI.filters.ColorMatrixFilter();
+
+//asset variables
+PIXI.Assets.add("red", "assets/images/red.png");
+PIXI.Assets.add("orange", "assets/images/orange.png");
+PIXI.Assets.add("blue", "assets/images/blue.png");
+PIXI.Assets.add("green", "assets/images/green.png");
+PIXI.Assets.add("background", "assets/images/background-server-room.jpg");
+PIXI.Assets.add("rackOff", "assets/images/rack off.png");
+PIXI.Assets.add("rackOn", "assets/images/rack on.png");
+PIXI.Assets.add("mineButton", "assets/images/mine-button-blue.png");
+PIXI.Assets.add("polygon", "assets/images/Polygon 1.png");
+PIXI.Assets.add("wattsButton", "assets/images/mine-button.png");
+
+const texturesPromise = PIXI.Assets.load([
+  "red",
+  "orange",
+  "blue",
+  "green",
+  "background",
+  "rackOff",
+  "rackOn",
+  "mineButton",
+  "polygon",
+  "wattsButton",
+]);
+
+texturesPromise.then((textures) => {
+  //game states
+  const bgSprite = PIXI.Sprite.from(textures.background);
   bgSprite.width = app.screen.width;
   bgSprite.height = app.screen.height;
 
@@ -70,9 +84,8 @@ function onAssetsLoaded() {
   );
 
   //the on/off sprite for the foreground mining rack
-  const rackSprite = new PIXI.Sprite(
-    PIXI.Texture.from("assets/images/rack off.png")
-  );
+  const rackSprite = new PIXI.Sprite();
+  rackSprite.texture = textures.rackOff;
   app.stage.addChild(rackContainer);
 
   rackContainer.addChild(rackSprite);
@@ -128,7 +141,8 @@ function onAssetsLoaded() {
 
   //purchase watts button
   const purchaseWattsContainer = new PIXI.Container();
-  const purchaseWattsSprite = PIXI.Sprite.from("assets/images/mine-button.png");
+  const purchaseWattsSprite = new PIXI.Sprite();
+  purchaseWattsSprite.texture = textures.wattsButton;
   purchaseWattsSprite.width = 189;
   purchaseWattsSprite.height = 186;
   purchaseWattsContainer.addChild(purchaseWattsSprite);
@@ -138,7 +152,6 @@ function onAssetsLoaded() {
   purchaseWattsSprite.cursor = "pointer";
 
   purchaseWattsSprite.addListener("pointerdown", () => {
-
     buyWatts();
     setRackState();
   });
@@ -155,9 +168,8 @@ function onAssetsLoaded() {
   purchaseWattsContainer.addChild(purchaseButtonText);
 
   //mine button ( a.k.a. spin)
-  const mineButtonSprite = PIXI.Sprite.from(
-    "assets/images/mine-button-blue.png"
-  );
+  const mineButtonSprite = new PIXI.Sprite();
+  mineButtonSprite.texture = textures.mineButton;
 
   mineButtonSprite.width = 189;
   mineButtonSprite.height = 186;
@@ -173,7 +185,8 @@ function onAssetsLoaded() {
     spin();
   });
 
-  const playIcon = PIXI.Sprite.from("assets/images/Polygon 1.png");
+  const playIcon = new PIXI.Sprite();
+  playIcon.texture = textures.polygon;
   playIcon.position.y = 186 / 2 + 120;
   playIcon.position.x = 270;
   playIcon.filters = [
@@ -216,15 +229,9 @@ function onAssetsLoaded() {
       hasWatts = false;
     }
     if (!hasWatts) {
-      const newSprite = new PIXI.Sprite(
-        PIXI.Texture.from("/assets/images/rack off.png")
-      );
-      rackSprite.texture = newSprite.texture;
+      rackSprite.texture = textures.rackOff;
     } else {
-      const newSprite = new PIXI.Sprite(
-        PIXI.Texture.from("/assets/images/rack on.png")
-      );
-      rackSprite.texture = newSprite.texture;
+      rackSprite.texture = textures.rackOn;
     }
   }
 
@@ -234,8 +241,8 @@ function onAssetsLoaded() {
   }
 
   function buyWatts() {
-    if(!spinning){
-      if (funds >= 500 ) {
+    if (!spinning) {
+      if (funds >= 500) {
         funds -= 500;
         watts += 500;
         mineButtonSprite.filters = [colorMatrixMine];
@@ -264,7 +271,6 @@ function onAssetsLoaded() {
       mineButtonSprite.interactive = false;
       mineButtonSprite.filters = [colorMatrixMine];
       colorMatrixMine.desaturate();
-      
     }
   }
   function setMineButtonState() {
@@ -287,10 +293,11 @@ function onAssetsLoaded() {
 
   // Create different slot symbols.
   const slotTextures = [
-    PIXI.Texture.from("assets/images/red.png"),
-    PIXI.Texture.from("assets/images/orange.png"),
-    PIXI.Texture.from("assets/images/blue.png"),
-    PIXI.Texture.from("assets/images/green.png"),
+    textures.red,
+    textures.orange,
+    textures.blue,
+    textures.green
+    
   ];
 
   // Build the reels
@@ -371,16 +378,15 @@ function onAssetsLoaded() {
 
   function checkReels() {
     setTimeout(() => {
-        console.clear();
-        reels.forEach(element => {
-            
-            element.container.children.forEach(element => {
-              console.log(element.texture.textureCacheIds);
-            });
-            console.log('-----------');
-            
-            //console.log(reels[i].container.children[0].texture.textureCacheIds);
+      console.clear();
+      reels.forEach((element) => {
+        element.container.children.forEach((element) => {
+          console.log(element.texture.textureCacheIds);
         });
+        console.log("-----------");
+
+        //console.log(reels[i].container.children[0].texture.textureCacheIds);
+      });
     }, 500);
   }
 
@@ -467,4 +473,4 @@ function onAssetsLoaded() {
       );
     }
   }
-}
+});
