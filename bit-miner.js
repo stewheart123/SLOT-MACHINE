@@ -3,6 +3,7 @@ let hasWatts = false;
 let watts = 0;
 let funds = 1000;
 const reels = [];
+let slotTextures = [];
 let spinning = false;
 
 const app = new PIXI.Application({
@@ -16,6 +17,29 @@ document.body.appendChild(app.view);
 //art variables
 let colorMatrixPurchase = new PIXI.filters.ColorMatrixFilter();
 let colorMatrixMine = new PIXI.filters.ColorMatrixFilter();
+
+//new slot variables
+  const boxWidth = 60;
+  const boxHeight = 60;
+  const boxSpacing = 10;
+  const boxes = [];
+  // const arr = [
+  //       Math.floor(Math.random() * 4) + 1,
+  //       Math.floor(Math.random() * 4) + 1,
+  //       Math.floor(Math.random() * 4) + 1,
+  //       Math.floor(Math.random() * 4) + 1,
+  // ];
+
+      for (let i = 0; i < 5; i++) {
+        const reel = [
+          Math.floor(Math.random() * 4) ,
+          Math.floor(Math.random() * 4),
+          Math.floor(Math.random() * 4) ,
+          Math.floor(Math.random() * 4) ,
+        ];
+
+        reels.push(reel);
+      }
 
 //asset variables
 PIXI.Assets.add("red", "assets/images/red.png");
@@ -43,6 +67,7 @@ const texturesPromise = PIXI.Assets.load([
 ]);
 
 texturesPromise.then((textures) => {
+
   //game states
   const bgSprite = PIXI.Sprite.from(textures.background);
   bgSprite.width = app.screen.width;
@@ -87,9 +112,7 @@ texturesPromise.then((textures) => {
   const rackSprite = new PIXI.Sprite();
   rackSprite.texture = textures.rackOff;
   app.stage.addChild(rackContainer);
-
   rackContainer.addChild(rackSprite);
-
   setRackState();
 
   //game display
@@ -221,7 +244,38 @@ texturesPromise.then((textures) => {
   fundsText.position.y = 70;
   textInfoContainer.addChild(fundsText);
   controlsContainer.addChild(textInfoContainer);
+    // Create different slot symbols.
+    slotTextures = [
+      textures.red,
+      textures.orange,
+      textures.blue,
+      textures.green    
+    ];
 
+  createBoxes(reels);
+
+  function createBoxes(reels) {
+    // Remove existing boxes
+    boxes.forEach((box) => app.stage.removeChild(box));
+    boxes.length = 0;
+
+    // Create boxes for each reel value
+    for (let i = 0; i < reels.length; i++) {
+      for (let j = 0; j < reels[i].length; j++) {
+
+        const box = new PIXI.Sprite(
+            slotTextures[reels[i][j]]
+        );
+        box.width = gameDisplayMonitor.width / 5;
+        box.height = gameDisplayMonitor.width / 5;
+        box.x = i * (gameDisplayMonitor.width / 5);
+        box.y = j * (gameDisplayMonitor.width / 5);
+        gameDisplayMonitor.addChild(box);
+        boxes.push(box);
+      }
+    }
+    
+  }
   function setRackState() {
     if (watts > 1) {
       hasWatts = true;
@@ -285,192 +339,131 @@ texturesPromise.then((textures) => {
     }
   }
   //slot demo integration
+  //OLD REEL SETUP
+  // const REEL_WIDTH = gameDisplayMonitor.width / 5;
+  // const SYMBOL_SIZE = gameDisplayMonitor.width / 5.1;
+  // // Build the reels
+  // const reelContainer = new PIXI.Container();
+  // for (let i = 0; i < 5; i++) {
+  //   const rc = new PIXI.Container();
+  //   rc.x = i * REEL_WIDTH;
+  //   reelContainer.addChild(rc);
 
-  const REEL_WIDTH = gameDisplayMonitor.width / 5;
-  const SYMBOL_SIZE = gameDisplayMonitor.width / 5.1;
+  //   const reel = {
+  //     container: rc,
+  //     symbols: [],
+  //     position: 0,
+  //     previousPosition: 0,
+  //     blur: new PIXI.filters.BlurFilter(),
+  //   };
+  //   reel.blur.blurX = 0;
+  //   reel.blur.blurY = 0;
+  //   rc.filters = [reel.blur];
 
-  // onAssetsLoaded handler builds the example.
+  //   // Build the symbols
 
-  // Create different slot symbols.
-  const slotTextures = [
-    textures.red,
-    textures.orange,
-    textures.blue,
-    textures.green
-    
-  ];
+  //   for (let j = 0; j < 4; j++) {
+  //     const symbol = new PIXI.Sprite(
+  //       slotTextures[Math.floor(Math.random() * slotTextures.length)]
+  //     );
+  //     // Scale the symbol to fit symbol area.
+  //     symbol.y = j * SYMBOL_SIZE;
+  //     symbol.scale.x = symbol.scale.y = Math.min(
+  //       SYMBOL_SIZE / symbol.width,
+  //       SYMBOL_SIZE / symbol.height
+  //     );
+  //     symbol.x = Math.round((SYMBOL_SIZE - symbol.width) / 2);
+  //     reel.symbols.push(symbol);
+  //     rc.addChild(symbol);
+  //   }
+  //   reels.push(reel);
+  // }
 
-  // Build the reels
-  const reelContainer = new PIXI.Container();
-  for (let i = 0; i < 5; i++) {
-    const rc = new PIXI.Container();
-    rc.x = i * REEL_WIDTH;
-    reelContainer.addChild(rc);
+//CHANGE WITH NEW REELS
+//  gameDisplayMonitor.addChild(reelContainer);
+  
 
-    const reel = {
-      container: rc,
-      symbols: [],
-      position: 0,
-      previousPosition: 0,
-      blur: new PIXI.filters.BlurFilter(),
-    };
-    reel.blur.blurX = 0;
-    reel.blur.blurY = 0;
-    rc.filters = [reel.blur];
+function rebuildReels() {
+  let count = 0;
+  let isActive = true;
 
-    // Build the symbols
-    for (let j = 0; j < 4; j++) {
-      const symbol = new PIXI.Sprite(
-        slotTextures[Math.floor(Math.random() * slotTextures.length)]
-      );
-      // Scale the symbol to fit symbol area.
-      symbol.y = j * SYMBOL_SIZE;
-      symbol.scale.x = symbol.scale.y = Math.min(
-        SYMBOL_SIZE / symbol.width,
-        SYMBOL_SIZE / symbol.height
-      );
-      symbol.x = Math.round((SYMBOL_SIZE - symbol.width) / 2);
-      reel.symbols.push(symbol);
-      rc.addChild(symbol);
+  const tickerFunction = () => {
+    const interval = 10; // generate random interval between 15 and 35 frames
+    if (isActive && count < 10 * interval) {
+      // run 10 times or until count reaches 10 * interval
+      count++;
+      if (count % interval === 0) {
+        // run every `interval` frames
+        for (let i = 0; i < reels.length; i++) {
+          reels[i].pop();
+          reels[i].unshift(Math.floor(Math.random() * 4) );
+        }
+        
+        createBoxes(reels);
+        console.log(reels);
+      }
+    } else {
+      isActive = false;
+      app.ticker.remove(tickerFunction); // stop the ticker
+      checkForMatchingColors(reels);
+      reelsComplete();
     }
-    reels.push(reel);
-  }
+  };
 
-  gameDisplayMonitor.addChild(reelContainer);
+  app.ticker.add(tickerFunction);
+}
 
   // Reels done handler.
   function reelsComplete() {
     spinning = false;
     setMineButtonState();
     setRackState();
-    checkReels();
+    
   }
 
-  // Listen for animate update.
-  app.ticker.add((delta) => {
-    // Update the slots.
-    for (let i = 0; i < reels.length; i++) {
-      const r = reels[i];
-      // Update blur filter y amount based on speed.
-      // This would be better if calculated with time in mind also. Now blur depends on frame rate.
-      r.blur.blurY = (r.position - r.previousPosition) * 8;
-      r.previousPosition = r.position;
-
-      // Update symbol positions on reel.
-      for (let j = 0; j < r.symbols.length; j++) {
-        const s = r.symbols[j];
-        const prevy = s.y;
-        s.y = ((r.position + j) % r.symbols.length) * SYMBOL_SIZE - SYMBOL_SIZE;
-        if (s.y < 0 && prevy > SYMBOL_SIZE) {
-          // Detect going over and swap a texture.
-          // This should in proper product be determined from some logical reel.
-          s.texture =
-            slotTextures[Math.floor(Math.random() * slotTextures.length)];
-          s.scale.x = s.scale.y = Math.min(
-            SYMBOL_SIZE / s.texture.width,
-            SYMBOL_SIZE / s.texture.height
-          );
-          s.x = Math.round((SYMBOL_SIZE - s.width) / 2);
+  function checkForMatchingColors(arr) {
+    let resultsArray = [];
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = 0; j < arr[i].length; j++) {
+        if (j === 1) {
+          let result = arr[i][j];
+          resultsArray.push(result);
         }
       }
     }
-  });
-
-  function checkReels() {
-    setTimeout(() => {
-      console.clear();
-      reels.forEach((element) => {
-        element.container.children.forEach((element) => {
-          console.log(element.texture.textureCacheIds);
-        });
-        console.log("-----------");
-
-        //console.log(reels[i].container.children[0].texture.textureCacheIds);
-      });
-    }, 500);
+    console.log(resultsArray);
+    sumMatchingNumbers(resultsArray);
   }
 
-  // Very simple tweening utility function. This should be replaced with a proper tweening library in a real product.
-  const tweening = [];
-  function tweenTo(
-    object,
-    property,
-    target,
-    time,
-    easing,
-    onchange,
-    oncomplete
-  ) {
-    const tween = {
-      object,
-      property,
-      propertyBeginValue: object[property],
-      target,
-      easing,
-      time,
-      change: onchange,
-      complete: oncomplete,
-      start: Date.now(),
-    };
+  // logic to check sequence
+  function sumMatchingNumbers(numbers) {
+    let sum = 0;
 
-    tweening.push(tween);
-    return tween;
-  }
-  // Listen for animate update.
-  app.ticker.add((delta) => {
-    const now = Date.now();
-    const remove = [];
-    for (let i = 0; i < tweening.length; i++) {
-      const t = tweening[i];
-      const phase = Math.min(1, (now - t.start) / t.time);
+    for (let i = 0; i < numbers.length; i++) {
+      let count = 1;
+      let currentSum = numbers[i];
 
-      t.object[t.property] = lerp(
-        t.propertyBeginValue,
-        t.target,
-        t.easing(phase)
-      );
-      if (t.change) t.change(t);
-      if (phase === 1) {
-        t.object[t.property] = t.target;
-        if (t.complete) t.complete(t);
-        remove.push(t);
+      for (let j = i + 1; j < numbers.length; j++) {
+        if (numbers[j] === numbers[i]) {
+          count++;
+          currentSum += numbers[j];
+        } else {
+          break;
+        }
+      }
+
+      if (count >= 3) {
+        sum += currentSum;
+        i += count - 1;
+        console.log(sum + " winner with " + count);
       }
     }
-    for (let i = 0; i < remove.length; i++) {
-      tweening.splice(tweening.indexOf(remove[i]), 1);
-    }
-  });
-
-  // Basic lerp funtion.
-  function lerp(a1, a2, t) {
-    return a1 * (1 - t) + a2 * t;
-  }
-
-  // Backout function from tweenjs.
-  // https://github.com/CreateJS/TweenJS/blob/master/src/tweenjs/Ease.js
-  function backout(amount) {
-    return (t) => --t * t * ((amount + 1) * t + amount) + 1;
-  }
+  }  
 
   // Function to start playing.
   function startPlay() {
     if (spinning) return;
     spinning = true;
-
-    for (let i = 0; i < reels.length; i++) {
-      const r = reels[i];
-      const extra = Math.floor(Math.random() * 3);
-      const target = r.position + 10 + i * 5 + extra;
-      const time = 2500 + i * 600 + extra * 600;
-      tweenTo(
-        r,
-        "position",
-        target,
-        time,
-        backout(0.1),
-        null,
-        i === reels.length - 1 ? reelsComplete : null
-      );
-    }
+    rebuildReels();
   }
 });
