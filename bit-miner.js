@@ -19,8 +19,8 @@ PIXI.Assets.load([
 let spinning = false;
 
 //art variables
-let alphaFilterInactive = new PIXI.filters.AlphaFilter(0.5);
-let alphaFilterFull = new PIXI.filters.AlphaFilter(1);
+let colorMatrixPurchase = new PIXI.filters.ColorMatrixFilter();
+let colorMatrixMine = new PIXI.filters.ColorMatrixFilter();
 
 const app = new PIXI.Application({
   background: "#000",
@@ -138,8 +138,6 @@ function onAssetsLoaded() {
   purchaseWattsSprite.cursor = "pointer";
 
   purchaseWattsSprite.addListener("pointerdown", () => {
-    mineButtonSprite.filters = [alphaFilterFull];
-    mineButtonSprite.interactive = true;
 
     buyWatts();
     setRackState();
@@ -168,7 +166,8 @@ function onAssetsLoaded() {
   mineButtonSprite.position.x =
     controlsContainer.width - mineButtonSprite.width;
   mineButtonSprite.cursor = "pointer";
-  mineButtonSprite.filters = [alphaFilterInactive];
+  mineButtonSprite.filters = [colorMatrixMine];
+  colorMatrixMine.desaturate();
 
   mineButtonSprite.addListener("pointerdown", () => {
     spin();
@@ -235,16 +234,22 @@ function onAssetsLoaded() {
   }
 
   function buyWatts() {
-    if (funds >= 500) {
-      funds -= 500;
-      watts += 500;
+    if(!spinning){
+      if (funds >= 500 ) {
+        funds -= 500;
+        watts += 500;
+        mineButtonSprite.filters = [colorMatrixMine];
+        colorMatrixMine.reset();
+        mineButtonSprite.interactive = true;
+      }
+      if (funds < 1) {
+        purchaseWattsSprite.interactive = false;
+        purchaseWattsSprite.filters = [colorMatrixPurchase];
+        colorMatrixPurchase.desaturate();
+      }
+      setGameInfoText();
+      setRackState();
     }
-    if (funds < 1) {
-      purchaseWattsSprite.interactive = false;
-      purchaseWattsSprite.filters = [alphaFilterInactive];
-    }
-    setGameInfoText();
-    setRackState();
   }
 
   function spin() {
@@ -257,16 +262,20 @@ function onAssetsLoaded() {
     }
     if (spinning) {
       mineButtonSprite.interactive = false;
-      mineButtonSprite.filters = [alphaFilterInactive];
+      mineButtonSprite.filters = [colorMatrixMine];
+      colorMatrixMine.desaturate();
+      
     }
   }
   function setMineButtonState() {
     if (watts < 1) {
       mineButtonSprite.interactive = false;
-      mineButtonSprite.filters = [alphaFilterInactive];
+      mineButtonSprite.filters = [colorMatrixMine];
+      colorMatrixMine.desaturate();
     } else {
       mineButtonSprite.interactive = true;
-      mineButtonSprite.filters = [alphaFilterFull];
+      mineButtonSprite.filters = [colorMatrixMine];
+      colorMatrixMine.reset();
     }
   }
   //slot demo integration
