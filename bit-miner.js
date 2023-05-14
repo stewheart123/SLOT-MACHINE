@@ -61,7 +61,7 @@ document.body.appendChild(app.view);
 // Loading bar
 const loadingContainer = new PIXI.Container();
 
-const loadingText = new PIXI.Text('NODE CONNECTING', {
+const loadingText = new PIXI.Text("NODE CONNECTING", {
   fontSize: 24,
   fill: 0xffffff,
   fontFamily: "Sigmar",
