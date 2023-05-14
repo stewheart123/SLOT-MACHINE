@@ -23,13 +23,6 @@ let colorMatrixMine = new PIXI.filters.ColorMatrixFilter();
   const boxHeight = 60;
   const boxSpacing = 10;
   const boxes = [];
-  // const arr = [
-  //       Math.floor(Math.random() * 4) + 1,
-  //       Math.floor(Math.random() * 4) + 1,
-  //       Math.floor(Math.random() * 4) + 1,
-  //       Math.floor(Math.random() * 4) + 1,
-  // ];
-
       for (let i = 0; i < 5; i++) {
         const reel = [
           Math.floor(Math.random() * 4) ,
@@ -97,11 +90,9 @@ texturesPromise.then((textures) => {
 
   //background rack
   const rackContainer = new PIXI.Container();
-
   rackContainer.height = 721;
   rackContainer.zIndex = 1;
   rackContainer.pivot.set(0.5, 1);
-
   rackContainer.width = 797;
   rackContainer.position.set(
     app.view.width / 2 - 797 / 2,
@@ -138,7 +129,6 @@ texturesPromise.then((textures) => {
 
   //mask area for reels
   const maskGraphics = new PIXI.Graphics();
-
   maskGraphics.beginFill(0xff0000);
   maskGraphics.drawRect(0, 0, gameDisplayMonitor.width, 310);
   maskGraphics.endFill();
@@ -273,9 +263,9 @@ texturesPromise.then((textures) => {
         gameDisplayMonitor.addChild(box);
         boxes.push(box);
       }
-    }
-    
+    }    
   }
+
   function setRackState() {
     if (watts > 1) {
       hasWatts = true;
@@ -314,7 +304,6 @@ texturesPromise.then((textures) => {
   }
 
   function spin() {
-    console.log("spin called!");
     if (watts >= 100) {
       //  spinning = true;
       watts -= 100;
@@ -338,51 +327,7 @@ texturesPromise.then((textures) => {
       colorMatrixMine.reset();
     }
   }
-  //slot demo integration
-  //OLD REEL SETUP
-  // const REEL_WIDTH = gameDisplayMonitor.width / 5;
-  // const SYMBOL_SIZE = gameDisplayMonitor.width / 5.1;
-  // // Build the reels
-  // const reelContainer = new PIXI.Container();
-  // for (let i = 0; i < 5; i++) {
-  //   const rc = new PIXI.Container();
-  //   rc.x = i * REEL_WIDTH;
-  //   reelContainer.addChild(rc);
-
-  //   const reel = {
-  //     container: rc,
-  //     symbols: [],
-  //     position: 0,
-  //     previousPosition: 0,
-  //     blur: new PIXI.filters.BlurFilter(),
-  //   };
-  //   reel.blur.blurX = 0;
-  //   reel.blur.blurY = 0;
-  //   rc.filters = [reel.blur];
-
-  //   // Build the symbols
-
-  //   for (let j = 0; j < 4; j++) {
-  //     const symbol = new PIXI.Sprite(
-  //       slotTextures[Math.floor(Math.random() * slotTextures.length)]
-  //     );
-  //     // Scale the symbol to fit symbol area.
-  //     symbol.y = j * SYMBOL_SIZE;
-  //     symbol.scale.x = symbol.scale.y = Math.min(
-  //       SYMBOL_SIZE / symbol.width,
-  //       SYMBOL_SIZE / symbol.height
-  //     );
-  //     symbol.x = Math.round((SYMBOL_SIZE - symbol.width) / 2);
-  //     reel.symbols.push(symbol);
-  //     rc.addChild(symbol);
-  //   }
-  //   reels.push(reel);
-  // }
-
-//CHANGE WITH NEW REELS
-//  gameDisplayMonitor.addChild(reelContainer);
   
-
 function rebuildReels() {
   let count = 0;
   let isActive = true;
@@ -398,9 +343,7 @@ function rebuildReels() {
           reels[i].pop();
           reels[i].unshift(Math.floor(Math.random() * 4) );
         }
-        
         createBoxes(reels);
-        console.log(reels);
       }
     } else {
       isActive = false;
@@ -412,13 +355,11 @@ function rebuildReels() {
 
   app.ticker.add(tickerFunction);
 }
-
   // Reels done handler.
   function reelsComplete() {
     spinning = false;
     setMineButtonState();
-    setRackState();
-    
+    setRackState();    
   }
 
   function checkForMatchingColors(arr) {
@@ -431,7 +372,6 @@ function rebuildReels() {
         }
       }
     }
-    console.log(resultsArray);
     sumMatchingNumbers(resultsArray);
   }
 
@@ -456,11 +396,12 @@ function rebuildReels() {
         sum += currentSum;
         i += count - 1;
         console.log(sum + " winner with " + count);
+        funds += sum * 100;
+        setGameInfoText();        
       }
     }
   }  
 
-  // Function to start playing.
   function startPlay() {
     if (spinning) return;
     spinning = true;
