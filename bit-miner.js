@@ -1,3 +1,38 @@
+const screenWidth = window.innerWidth;
+console.log(`Screen width: ${screenWidth}`);
+let isMobile = false;
+let titleFontSize = 64;
+let titleDistance = 80;
+let rackContainerHeight = 721;
+let rackContainerWidth = 796;
+let rackContainerScale = 1;
+let gameDisplayMonitorWidth = 534;
+let gameDisplayMonitorY = 350;
+let lineIndicatorYOffset = 110;
+let maskGraphicsHeight = 310;
+let controlsPanelWidth = 764;
+let buttonDimensons = 189;
+let buttonYOffset = -30;
+let textInfoFontSize = 26
+
+//responsie variables
+if(screenWidth < 768) {
+  isMobile = true;
+  console.log('mobile mode');
+  titleFontSize = 50;
+  titleDistance = 30;
+  rackContainerScale = 1;
+  rackContainerHeight = window.innerheight * 0.75;
+  rackContainerWidth = window.innerWidth;  
+  gameDisplayMonitorWidth = window.innerWidth - 50;
+  gameDisplayMonitorY = window.innerHeight / 2 - 200;
+  lineIndicatorYOffset = 90;
+  maskGraphicsHeight = 275;
+  controlsPanelWidth = window.innerWidth;
+  buttonDimensons = 140;
+  buttonYOffset = -150;
+}
+
 //game variables
 let hasWatts = false;
 let watts = 0;
@@ -20,9 +55,6 @@ let colorMatrixPurchase = new PIXI.filters.ColorMatrixFilter();
 let colorMatrixMine = new PIXI.filters.ColorMatrixFilter();
 
 //new slot variables
-  const boxWidth = 60;
-  const boxHeight = 60;
-  const boxSpacing = 10;
   const boxes = [];
       for (let i = 0; i < 5; i++) {
         const reel = [
@@ -31,7 +63,6 @@ let colorMatrixMine = new PIXI.filters.ColorMatrixFilter();
           Math.floor(Math.random() * 4) ,
           Math.floor(Math.random() * 4) ,
         ];
-
         reels.push(reel);
       }
 
@@ -61,9 +92,7 @@ const assetPromise = PIXI.Assets.load([
 ]);
 
 assetPromise.then((loadedAsset) => {
-  //const sound = PIXI.sound.Sound.from(loadedAsset.winSound);
-  //sound.play();
-  //console.log(loadedAsset.winSound);
+
   const serverRoomSound = new Audio('assets/sounds/server-room.mp3');
   serverRoomSound.volume = 0.18;
   serverRoomSound.loop = true;
@@ -89,7 +118,7 @@ assetPromise.then((loadedAsset) => {
   //title
   const titleContainer = new PIXI.Container();
   const gameTitle = new PIXI.Text("BIT-MINER", {
-    fontSize: 64,
+    fontSize: titleFontSize,
     fill: 0xffffff,
     fontFamily: "Sigmar",
     textAlign: "center",
@@ -101,10 +130,9 @@ assetPromise.then((loadedAsset) => {
   gameTitle.anchor.set(0.5);
   gameTitle.position.set(titleContainer.width / 2, titleContainer.height / 2);
 
-  titleContainer.position.set(app.view.width / 2, 80);
+  titleContainer.position.set(app.view.width / 2, titleDistance);
   titleContainer.addChild(gameTitle);
   app.stage.addChild(titleContainer);
-
   
   //Line indicator graphic
   const lineIndicator = new PIXI.Graphics();
@@ -118,36 +146,46 @@ assetPromise.then((loadedAsset) => {
   
   var blurFilterInner = new PIXI.filters.BlurFilter();
   lineIndicatorInner.filters = [blurFilterInner]
-  blurFilterInner.blur = 0.5;
-  
+  blurFilterInner.blur = 0.5;  
 
   //background rack
   const rackContainer = new PIXI.Container();
-  rackContainer.height = 721;
-  rackContainer.zIndex = 1;
+  rackContainer.height = rackContainerHeight;
+  // rackContainer.zIndex = 0;
   rackContainer.pivot.set(0.5, 1);
-  rackContainer.width = 797;
-  rackContainer.position.set(
-    app.view.width / 2 - 797 / 2,
-    app.view.height - 721
-  );
-
+  console.log(rackContainer.pivot);
+  rackContainer.width = rackContainerWidth;
+  rackContainer.scale.set(rackContainerScale, rackContainerScale);
+  if(!isMobile) {
+    rackContainer.position.set(
+      (app.view.width / 2) - (rackContainerWidth / 2),
+      app.view.height - rackContainerHeight
+    );
+  }
+  else {
+    rackContainer.position.set(
+      0,120);         
+  }
+  
   //the on/off sprite for the foreground mining rack
   const rackSprite = new PIXI.Sprite();
   rackSprite.texture = loadedAsset.rackOff;
   app.stage.addChild(rackContainer);
   rackContainer.addChild(rackSprite);
-  //setRackState();
-
+  if(isMobile) {
+    const scaleFactor = Math.min(window.innerWidth / rackSprite.width, window.innerHeight / rackSprite.height);
+    rackContainer.scale.set(scaleFactor);
+  }
+ 
   //game display
   const gameDisplayMonitor = new PIXI.Graphics();
   gameDisplayMonitor.beginFill("#000000");
-  gameDisplayMonitor.drawRoundedRect(0, 0, 534, 387, 21);
+  gameDisplayMonitor.drawRoundedRect(0, 0, gameDisplayMonitorWidth, 387, 21);
   gameDisplayMonitor.endFill();
 
   gameDisplayMonitor.position.set(
     app.view.width / 2 - gameDisplayMonitor.width / 2,
-    350
+    gameDisplayMonitorY
   );
 
   gameDisplayMonitor.filters = [
@@ -160,15 +198,15 @@ assetPromise.then((loadedAsset) => {
 
   app.stage.addChild(gameDisplayMonitor);
 
-  lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + 110, gameDisplayMonitor.width, 100);
-  lineIndicatorInner.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + 110, gameDisplayMonitor.width, 100);
+  lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + lineIndicatorYOffset, gameDisplayMonitor.width, 100);
+  lineIndicatorInner.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + lineIndicatorYOffset, gameDisplayMonitor.width, 100);
   app.stage.addChild(lineIndicator);
   app.stage.addChild(lineIndicatorInner);
 
   //mask area for reels
   const maskGraphics = new PIXI.Graphics();
   maskGraphics.beginFill(0xff0000);
-  maskGraphics.drawRect(0, 0, gameDisplayMonitor.width, 310);
+  maskGraphics.drawRect(0, 0, gameDisplayMonitor.width, maskGraphicsHeight);
   maskGraphics.endFill();
   maskGraphics.position.y = 0;
   gameDisplayMonitor.mask = maskGraphics;
@@ -180,7 +218,7 @@ assetPromise.then((loadedAsset) => {
   const controlsPanel = new PIXI.Graphics();
   controlsPanel.lineStyle(2, 0x25ec5d, 0.4);
   controlsPanel.beginFill(0x000000, 0.5);
-  controlsPanel.drawRect(0, 0, 764, 170);
+  controlsPanel.drawRect(0, 0, controlsPanelWidth, 170);
   controlsPanel.endFill();
   controlsPanel.zIndex = 3;
   controlsContainer.addChild(controlsPanel);
@@ -194,10 +232,11 @@ assetPromise.then((loadedAsset) => {
   const purchaseWattsContainer = new PIXI.Container();
   const purchaseWattsSprite = new PIXI.Sprite();
   purchaseWattsSprite.texture = loadedAsset.wattsButton;
-  purchaseWattsSprite.width = 189;
-  purchaseWattsSprite.height = 186;
+  purchaseWattsSprite.width = buttonDimensons;
+  purchaseWattsSprite.height = buttonDimensons;
   purchaseWattsContainer.addChild(purchaseWattsSprite);
-  purchaseWattsSprite.position.y = -30;
+  //purchaseWattsSprite.position.y = buttonYOffset;
+  purchaseWattsContainer.position.y = buttonYOffset;
   controlsContainer.addChild(purchaseWattsContainer);
   purchaseWattsSprite.interactive = true;
   purchaseWattsSprite.cursor = "pointer";
@@ -213,7 +252,7 @@ assetPromise.then((loadedAsset) => {
   });
   purchaseButtonText.position.set(
     0,
-    purchaseWattsContainer.height - purchaseButtonText.height * 2
+    purchaseWattsContainer.height - purchaseButtonText.height * 0.8
   );
   purchaseWattsContainer.addChild(purchaseButtonText);
 
@@ -221,10 +260,10 @@ assetPromise.then((loadedAsset) => {
   const mineButtonSprite = new PIXI.Sprite();
   mineButtonSprite.texture = loadedAsset.mineButton;
 
-  mineButtonSprite.width = 189;
-  mineButtonSprite.height = 186;
+  mineButtonSprite.width = buttonDimensons;
+  mineButtonSprite.height = buttonDimensons;
   controlsContainer.addChild(mineButtonSprite);
-  mineButtonSprite.position.y = -30;
+  mineButtonSprite.position.y = buttonYOffset;
   mineButtonSprite.position.x =
     controlsContainer.width - mineButtonSprite.width;
   mineButtonSprite.cursor = "pointer";
@@ -257,7 +296,12 @@ assetPromise.then((loadedAsset) => {
     padding: 20,
   });
 
-  textInfoContainer.position.x = purchaseWattsContainer.width + 30;
+  if(!isMobile) {
+    textInfoContainer.position.x = purchaseWattsContainer.width + 30;
+  }
+  else {
+    textInfoContainer.position.x = 30;
+  }
   textInfoContainer.position.y = 30;
   textInfoContainer.addChild(wattsStatusText);
 
@@ -315,7 +359,7 @@ assetPromise.then((loadedAsset) => {
       serverRoomSound.currentTime = 0;
       lineIndicator.clear();
       lineIndicator.lineStyle(5, 0x00ff49, 1);
-      lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + 110, gameDisplayMonitor.width, 100);
+      lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + lineIndicatorYOffset, gameDisplayMonitor.width, 100);
       if(canPlayGameOver) {
         offSound.play();
       }
@@ -323,7 +367,7 @@ assetPromise.then((loadedAsset) => {
       rackSprite.texture = loadedAsset.rackOn;
       lineIndicator.clear();
       lineIndicator.lineStyle(15, 0xfc35ff, 1);
-      lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + 110, gameDisplayMonitor.width, 100);
+      lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + lineIndicatorYOffset, gameDisplayMonitor.width, 100);
       serverRoomSound.play();
     }
   }
