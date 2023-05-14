@@ -5,6 +5,7 @@ let funds = 1000;
 const reels = [];
 let slotTextures = [];
 let spinning = false;
+let canPlayGameOver = false;
 
 const app = new PIXI.Application({
   background: "#000",
@@ -46,7 +47,7 @@ PIXI.Assets.add("mineButton", "assets/images/mine-button-blue.png");
 PIXI.Assets.add("polygon", "assets/images/Polygon 1.png");
 PIXI.Assets.add("wattsButton", "assets/images/mine-button.png");
 
-const texturesPromise = PIXI.Assets.load([
+const assetPromise = PIXI.Assets.load([
   "red",
   "orange",
   "blue",
@@ -59,10 +60,26 @@ const texturesPromise = PIXI.Assets.load([
   "wattsButton",
 ]);
 
-texturesPromise.then((textures) => {
+assetPromise.then((loadedAsset) => {
+  //const sound = PIXI.sound.Sound.from(loadedAsset.winSound);
+  //sound.play();
+  //console.log(loadedAsset.winSound);
+  const serverRoomSound = new Audio('assets/sounds/server-room.mp3');
+  serverRoomSound.volume = 0.18;
+  serverRoomSound.loop = true;
 
+  const mineSound = new Audio('assets/sounds/computer-boot.mp3');
+  mineSound.volume = 0.6;
+  mineSound.loop = true;
+  
+  const winSound = new Audio('assets/sounds/win.mp3');
+  winSound.volume = 0.6;
+
+  const offSound = new Audio('assets/sounds/turn-off.mp3');
+  offSound.volume = 0.5;
+    
   //game states
-  const bgSprite = PIXI.Sprite.from(textures.background);
+  const bgSprite = PIXI.Sprite.from(loadedAsset.background);
   bgSprite.width = app.screen.width;
   bgSprite.height = app.screen.height;
 
@@ -88,6 +105,22 @@ texturesPromise.then((textures) => {
   titleContainer.addChild(gameTitle);
   app.stage.addChild(titleContainer);
 
+  
+  //Line indicator graphic
+  const lineIndicator = new PIXI.Graphics();
+  lineIndicator.lineStyle(5, 0x00ff49, 1);
+  var blurFilter = new PIXI.filters.BlurFilter();
+  lineIndicator.filters = [blurFilter]
+  blurFilter.blur = 10;
+  
+  const lineIndicatorInner = new PIXI.Graphics();
+  lineIndicatorInner.lineStyle(1, 0xFFFFFF, 1);
+  
+  var blurFilterInner = new PIXI.filters.BlurFilter();
+  lineIndicatorInner.filters = [blurFilterInner]
+  blurFilterInner.blur = 0.5;
+  
+
   //background rack
   const rackContainer = new PIXI.Container();
   rackContainer.height = 721;
@@ -101,10 +134,10 @@ texturesPromise.then((textures) => {
 
   //the on/off sprite for the foreground mining rack
   const rackSprite = new PIXI.Sprite();
-  rackSprite.texture = textures.rackOff;
+  rackSprite.texture = loadedAsset.rackOff;
   app.stage.addChild(rackContainer);
   rackContainer.addChild(rackSprite);
-  setRackState();
+  //setRackState();
 
   //game display
   const gameDisplayMonitor = new PIXI.Graphics();
@@ -126,6 +159,11 @@ texturesPromise.then((textures) => {
   ];
 
   app.stage.addChild(gameDisplayMonitor);
+
+  lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + 110, gameDisplayMonitor.width, 100);
+  lineIndicatorInner.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + 110, gameDisplayMonitor.width, 100);
+  app.stage.addChild(lineIndicator);
+  app.stage.addChild(lineIndicatorInner);
 
   //mask area for reels
   const maskGraphics = new PIXI.Graphics();
@@ -155,7 +193,7 @@ texturesPromise.then((textures) => {
   //purchase watts button
   const purchaseWattsContainer = new PIXI.Container();
   const purchaseWattsSprite = new PIXI.Sprite();
-  purchaseWattsSprite.texture = textures.wattsButton;
+  purchaseWattsSprite.texture = loadedAsset.wattsButton;
   purchaseWattsSprite.width = 189;
   purchaseWattsSprite.height = 186;
   purchaseWattsContainer.addChild(purchaseWattsSprite);
@@ -166,7 +204,6 @@ texturesPromise.then((textures) => {
 
   purchaseWattsSprite.addListener("pointerdown", () => {
     buyWatts();
-    setRackState();
   });
 
   const purchaseButtonText = new PIXI.Text("PURCHASE WATTS", {
@@ -182,7 +219,7 @@ texturesPromise.then((textures) => {
 
   //mine button ( a.k.a. spin)
   const mineButtonSprite = new PIXI.Sprite();
-  mineButtonSprite.texture = textures.mineButton;
+  mineButtonSprite.texture = loadedAsset.mineButton;
 
   mineButtonSprite.width = 189;
   mineButtonSprite.height = 186;
@@ -199,7 +236,7 @@ texturesPromise.then((textures) => {
   });
 
   const playIcon = new PIXI.Sprite();
-  playIcon.texture = textures.polygon;
+  playIcon.texture = loadedAsset.polygon;
   playIcon.position.y = 186 / 2 + 120;
   playIcon.position.x = 270;
   playIcon.filters = [
@@ -236,10 +273,10 @@ texturesPromise.then((textures) => {
   controlsContainer.addChild(textInfoContainer);
     // Create different slot symbols.
     slotTextures = [
-      textures.red,
-      textures.orange,
-      textures.blue,
-      textures.green    
+      loadedAsset.red,
+      loadedAsset.orange,
+      loadedAsset.blue,
+      loadedAsset.green    
     ];
 
   createBoxes(reels);
@@ -273,9 +310,21 @@ texturesPromise.then((textures) => {
       hasWatts = false;
     }
     if (!hasWatts) {
-      rackSprite.texture = textures.rackOff;
+      rackSprite.texture = loadedAsset.rackOff;
+      serverRoomSound.pause();
+      serverRoomSound.currentTime = 0;
+      lineIndicator.clear();
+      lineIndicator.lineStyle(5, 0x00ff49, 1);
+      lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + 110, gameDisplayMonitor.width, 100);
+      if(canPlayGameOver) {
+        offSound.play();
+      }
     } else {
-      rackSprite.texture = textures.rackOn;
+      rackSprite.texture = loadedAsset.rackOn;
+      lineIndicator.clear();
+      lineIndicator.lineStyle(15, 0xfc35ff, 1);
+      lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + 110, gameDisplayMonitor.width, 100);
+      serverRoomSound.play();
     }
   }
 
@@ -292,6 +341,7 @@ texturesPromise.then((textures) => {
         mineButtonSprite.filters = [colorMatrixMine];
         colorMatrixMine.reset();
         mineButtonSprite.interactive = true;
+        canPlayGameOver = true;
       }
       if (funds < 1) {
         purchaseWattsSprite.interactive = false;
@@ -359,7 +409,8 @@ function rebuildReels() {
   function reelsComplete() {
     spinning = false;
     setMineButtonState();
-    setRackState();    
+    setRackState();
+    mineSound.pause();    
   }
 
   function checkForMatchingColors(arr) {
@@ -396,8 +447,12 @@ function rebuildReels() {
         sum += currentSum;
         i += count - 1;
         console.log(sum + " winner with " + count);
+        if(sum === 0) {
+          sum = 1;
+        }
         funds += sum * 100;
-        setGameInfoText();        
+        setGameInfoText();
+        winSound.play();        
       }
     }
   }  
@@ -405,6 +460,7 @@ function rebuildReels() {
   function startPlay() {
     if (spinning) return;
     spinning = true;
+    mineSound.play();
     rebuildReels();
   }
 });
