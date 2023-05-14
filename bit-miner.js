@@ -1,5 +1,4 @@
 const screenWidth = window.innerWidth;
-console.log(`Screen width: ${screenWidth}`);
 let isMobile = false;
 let titleFontSize = 64;
 let titleDistance = 80;
@@ -13,7 +12,7 @@ let maskGraphicsHeight = 310;
 let controlsPanelWidth = 764;
 let buttonDimensons = 189;
 let buttonYOffset = -30;
-let textInfoFontSize = 26
+let textInfoFontSize = 26;
 let statusFontSize = 36;
 let controlsPanelHeight = 170;
 let fundsTextPosition = 70;
@@ -21,14 +20,14 @@ let gameDisplayYOffset = 150;
 let rackContainerYOffset = 120;
 
 //responsie variables
-if(screenWidth < 550) {
+if (screenWidth < 550) {
   isMobile = true;
-  console.log('mobile mode');
+  console.log("mobile mode");
   titleFontSize = 50;
   titleDistance = 30;
   rackContainerScale = 1;
   rackContainerHeight = window.innerheight * 0.75;
-  rackContainerWidth = window.innerWidth;  
+  rackContainerWidth = window.innerWidth;
   gameDisplayMonitorWidth = window.innerWidth - 50;
   gameDisplayMonitorY = window.innerHeight / 2 - 200;
   lineIndicatorYOffset = 90;
@@ -40,7 +39,7 @@ if(screenWidth < 550) {
   controlsPanelHeight = 100;
   fundsTextPosition = 20;
   gameDisplayYOffset = 0;
-  rackContainerYOffset = 40;  
+  rackContainerYOffset = 40;
 }
 
 //game variables
@@ -57,7 +56,6 @@ const app = new PIXI.Application({
   height: window.innerHeight,
   width: window.innerWidth,
 });
-
 document.body.appendChild(app.view);
 
 //art variables
@@ -65,16 +63,16 @@ let colorMatrixPurchase = new PIXI.filters.ColorMatrixFilter();
 let colorMatrixMine = new PIXI.filters.ColorMatrixFilter();
 
 //new slot variables
-  const boxes = [];
-      for (let i = 0; i < 5; i++) {
-        const reel = [
-          Math.floor(Math.random() * 4) ,
-          Math.floor(Math.random() * 4),
-          Math.floor(Math.random() * 4) ,
-          Math.floor(Math.random() * 4) ,
-        ];
-        reels.push(reel);
-      }
+const boxes = [];
+for (let i = 0; i < 5; i++) {
+  const reel = [
+    Math.floor(Math.random() * 4),
+    Math.floor(Math.random() * 4),
+    Math.floor(Math.random() * 4),
+    Math.floor(Math.random() * 4),
+  ];
+  reels.push(reel);
+}
 
 //asset variables
 PIXI.Assets.add("red", "assets/images/red.png");
@@ -102,29 +100,28 @@ const assetPromise = PIXI.Assets.load([
 ]);
 
 assetPromise.then((loadedAsset) => {
-
-  const serverRoomSound = new Audio('assets/sounds/server-room.mp3');
+  const serverRoomSound = new Audio("assets/sounds/server-room.mp3");
   serverRoomSound.volume = 0.18;
   serverRoomSound.loop = true;
 
-  const mineSound = new Audio('assets/sounds/computer-boot.mp3');
+  const mineSound = new Audio("assets/sounds/computer-boot.mp3");
   mineSound.volume = 0.6;
   mineSound.loop = true;
-  
-  const winSound = new Audio('assets/sounds/win.mp3');
+
+  const winSound = new Audio("assets/sounds/win.mp3");
   winSound.volume = 0.6;
 
-  const offSound = new Audio('assets/sounds/turn-off.mp3');
+  const offSound = new Audio("assets/sounds/turn-off.mp3");
   offSound.volume = 0.5;
 
   //silence sound mobile
-  if(isMobile) {
+  if (isMobile) {
     serverRoomSound.volume = 0;
     mineSound.volume = 0;
     winSound.volume = 0;
     offSound.volume = 0;
   }
-    
+
   //game states
   const bgSprite = PIXI.Sprite.from(loadedAsset.background);
   bgSprite.width = app.screen.width;
@@ -132,50 +129,49 @@ assetPromise.then((loadedAsset) => {
 
   // Add the sprite to the stage as the first child
   app.stage.addChildAt(bgSprite, 0);
-  
+
   //Line indicator graphic
   const lineIndicator = new PIXI.Graphics();
   lineIndicator.lineStyle(5, 0x00ff49, 1);
   var blurFilter = new PIXI.filters.BlurFilter();
-  lineIndicator.filters = [blurFilter]
+  lineIndicator.filters = [blurFilter];
   blurFilter.blur = 10;
-  
+
   const lineIndicatorInner = new PIXI.Graphics();
-  lineIndicatorInner.lineStyle(1, 0xFFFFFF, 1);
-  
+  lineIndicatorInner.lineStyle(1, 0xffffff, 1);
+
   var blurFilterInner = new PIXI.filters.BlurFilter();
-  lineIndicatorInner.filters = [blurFilterInner]
-  blurFilterInner.blur = 0.5;  
+  lineIndicatorInner.filters = [blurFilterInner];
+  blurFilterInner.blur = 0.5;
 
   //background rack
   const rackContainer = new PIXI.Container();
   rackContainer.height = rackContainerHeight;
-  // rackContainer.zIndex = 0;
   rackContainer.pivot.set(0.5, 1);
-  console.log(rackContainer.pivot);
   rackContainer.width = rackContainerWidth;
   rackContainer.scale.set(rackContainerScale, rackContainerScale);
-  if(!isMobile) {
+  if (!isMobile) {
     rackContainer.position.set(
-      (app.view.width / 2) - (rackContainerWidth / 2),
+      app.view.width / 2 - rackContainerWidth / 2,
       app.view.height - rackContainerHeight
     );
+  } else {
+    rackContainer.position.set(0, rackContainerYOffset);
   }
-  else {
-    rackContainer.position.set(
-      0, rackContainerYOffset);         
-  }
-  
+
   //the on/off sprite for the foreground mining rack
   const rackSprite = new PIXI.Sprite();
   rackSprite.texture = loadedAsset.rackOff;
   app.stage.addChild(rackContainer);
   rackContainer.addChild(rackSprite);
-  if(isMobile) {
-    const scaleFactor = Math.min(window.innerWidth / rackSprite.width, window.innerHeight / rackSprite.height);
+  if (isMobile) {
+    const scaleFactor = Math.min(
+      window.innerWidth / rackSprite.width,
+      window.innerHeight / rackSprite.height
+    );
     rackContainer.scale.set(scaleFactor);
   }
- 
+
   //game display
   const gameDisplayMonitor = new PIXI.Graphics();
   gameDisplayMonitor.beginFill("#000000");
@@ -197,8 +193,18 @@ assetPromise.then((loadedAsset) => {
 
   app.stage.addChild(gameDisplayMonitor);
 
-  lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + lineIndicatorYOffset, gameDisplayMonitor.width, 100);
-  lineIndicatorInner.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + lineIndicatorYOffset, gameDisplayMonitor.width, 100);
+  lineIndicator.drawRect(
+    gameDisplayMonitor.position.x,
+    gameDisplayMonitor.position.y + lineIndicatorYOffset,
+    gameDisplayMonitor.width,
+    100
+  );
+  lineIndicatorInner.drawRect(
+    gameDisplayMonitor.position.x,
+    gameDisplayMonitor.position.y + lineIndicatorYOffset,
+    gameDisplayMonitor.width,
+    100
+  );
   app.stage.addChild(lineIndicator);
   app.stage.addChild(lineIndicatorInner);
 
@@ -216,7 +222,7 @@ assetPromise.then((loadedAsset) => {
   });
   gameTitle.anchor.set(0.5);
   gameTitle.position.set(titleContainer.width / 2, titleContainer.height / 2);
-  
+
   titleContainer.position.set(app.view.width / 2, titleDistance);
   titleContainer.addChild(gameTitle);
   app.stage.addChild(titleContainer);
@@ -228,7 +234,6 @@ assetPromise.then((loadedAsset) => {
   maskGraphics.endFill();
   maskGraphics.position.y = 0;
   gameDisplayMonitor.mask = maskGraphics;
-
   gameDisplayMonitor.addChild(maskGraphics);
 
   //controls container
@@ -276,7 +281,6 @@ assetPromise.then((loadedAsset) => {
   //mine button ( a.k.a. spin)
   const mineButtonSprite = new PIXI.Sprite();
   mineButtonSprite.texture = loadedAsset.mineButton;
-
   mineButtonSprite.width = buttonDimensons;
   mineButtonSprite.height = buttonDimensons;
   controlsContainer.addChild(mineButtonSprite);
@@ -313,10 +317,9 @@ assetPromise.then((loadedAsset) => {
     padding: 20,
   });
 
-  if(!isMobile) {
+  if (!isMobile) {
     textInfoContainer.position.x = purchaseWattsContainer.width + 30;
-  }
-  else {
+  } else {
     textInfoContainer.position.x = 30;
   }
   textInfoContainer.position.y = 30;
@@ -332,13 +335,13 @@ assetPromise.then((loadedAsset) => {
   fundsText.position.y = fundsTextPosition;
   textInfoContainer.addChild(fundsText);
   controlsContainer.addChild(textInfoContainer);
-    // Create different slot symbols.
-    slotTextures = [
-      loadedAsset.red,
-      loadedAsset.orange,
-      loadedAsset.blue,
-      loadedAsset.green    
-    ];
+  // Create different slot symbols.
+  slotTextures = [
+    loadedAsset.red,
+    loadedAsset.orange,
+    loadedAsset.blue,
+    loadedAsset.green,
+  ];
 
   createBoxes(reels);
 
@@ -350,10 +353,7 @@ assetPromise.then((loadedAsset) => {
     // Create boxes for each reel value
     for (let i = 0; i < reels.length; i++) {
       for (let j = 0; j < reels[i].length; j++) {
-
-        const box = new PIXI.Sprite(
-            slotTextures[reels[i][j]]
-        );
+        const box = new PIXI.Sprite(slotTextures[reels[i][j]]);
         box.width = gameDisplayMonitor.width / 5;
         box.height = gameDisplayMonitor.width / 5;
         box.x = i * (gameDisplayMonitor.width / 5);
@@ -361,7 +361,7 @@ assetPromise.then((loadedAsset) => {
         gameDisplayMonitor.addChild(box);
         boxes.push(box);
       }
-    }    
+    }
   }
 
   function setRackState() {
@@ -376,15 +376,25 @@ assetPromise.then((loadedAsset) => {
       serverRoomSound.currentTime = 0;
       lineIndicator.clear();
       lineIndicator.lineStyle(5, 0x00ff49, 1);
-      lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + lineIndicatorYOffset, gameDisplayMonitor.width, 100);
-      if(canPlayGameOver) {
+      lineIndicator.drawRect(
+        gameDisplayMonitor.position.x,
+        gameDisplayMonitor.position.y + lineIndicatorYOffset,
+        gameDisplayMonitor.width,
+        100
+      );
+      if (canPlayGameOver) {
         offSound.play();
       }
     } else {
       rackSprite.texture = loadedAsset.rackOn;
       lineIndicator.clear();
       lineIndicator.lineStyle(15, 0xfc35ff, 1);
-      lineIndicator.drawRect(gameDisplayMonitor.position.x, gameDisplayMonitor.position.y + lineIndicatorYOffset, gameDisplayMonitor.width, 100);
+      lineIndicator.drawRect(
+        gameDisplayMonitor.position.x,
+        gameDisplayMonitor.position.y + lineIndicatorYOffset,
+        gameDisplayMonitor.width,
+        100
+      );
       serverRoomSound.play();
     }
   }
@@ -438,40 +448,40 @@ assetPromise.then((loadedAsset) => {
       colorMatrixMine.reset();
     }
   }
-  
-function rebuildReels() {
-  let count = 0;
-  let isActive = true;
 
-  const tickerFunction = () => {
-    const interval = 10; // generate random interval between 15 and 35 frames
-    if (isActive && count < 10 * interval) {
-      // run 10 times or until count reaches 10 * interval
-      count++;
-      if (count % interval === 0) {
-        // run every `interval` frames
-        for (let i = 0; i < reels.length; i++) {
-          reels[i].pop();
-          reels[i].unshift(Math.floor(Math.random() * 4) );
+  function rebuildReels() {
+    let count = 0;
+    let isActive = true;
+
+    const tickerFunction = () => {
+      const interval = 10; // generate random interval between 15 and 35 frames
+      if (isActive && count < 10 * interval) {
+        // run 10 times or until count reaches 10 * interval
+        count++;
+        if (count % interval === 0) {
+          // run every `interval` frames
+          for (let i = 0; i < reels.length; i++) {
+            reels[i].pop();
+            reels[i].unshift(Math.floor(Math.random() * 4));
+          }
+          createBoxes(reels);
         }
-        createBoxes(reels);
+      } else {
+        isActive = false;
+        app.ticker.remove(tickerFunction); // stop the ticker
+        checkForMatchingColors(reels);
+        reelsComplete();
       }
-    } else {
-      isActive = false;
-      app.ticker.remove(tickerFunction); // stop the ticker
-      checkForMatchingColors(reels);
-      reelsComplete();
-    }
-  };
+    };
 
-  app.ticker.add(tickerFunction);
-}
-  // Reels done handler.
+    app.ticker.add(tickerFunction);
+  }
+
   function reelsComplete() {
     spinning = false;
     setMineButtonState();
     setRackState();
-    mineSound.pause();    
+    mineSound.pause();
   }
 
   function checkForMatchingColors(arr) {
@@ -507,16 +517,15 @@ function rebuildReels() {
       if (count >= 3) {
         sum += currentSum;
         i += count - 1;
-        console.log(sum + " winner with " + count);
-        if(sum === 0) {
+        if (sum === 0) {
           sum = 1;
         }
         funds += sum * 100;
         setGameInfoText();
-        winSound.play();        
+        winSound.play();
       }
     }
-  }  
+  }
 
   function startPlay() {
     if (spinning) return;
