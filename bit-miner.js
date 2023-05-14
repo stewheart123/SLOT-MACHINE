@@ -58,6 +58,51 @@ const app = new PIXI.Application({
 });
 document.body.appendChild(app.view);
 
+// Loading bar
+const loadingContainer = new PIXI.Container();
+
+const loadingText = new PIXI.Text('NODE CONNECTING', {
+  fontSize: 24,
+  fill: 0xffffff,
+  fontFamily: "Sigmar",
+  dropShadow: true,
+  dropShadowColor: "#51D5FF",
+  dropShadowBlur: 16,
+  textAlign: "center",
+});
+loadingText.anchor.set(0.5);
+loadingText.position.set(app.screen.width / 2, app.screen.height / 2 - 20);
+
+const loadingBar = new PIXI.Graphics();
+loadingBar.lineStyle(2, 0x60ce7b, 1);
+loadingBar.drawRect(0, 0, 300, 10);
+loadingBar.position.set(app.screen.width / 2 - 150, app.screen.height / 2 + 10);
+const progressBar = new PIXI.Graphics();
+loadingBar.addChild(progressBar);
+loadingContainer.addChild(loadingText);
+loadingContainer.addChild(loadingBar);
+app.stage.addChild(loadingContainer);
+let progress = 0;
+
+function updateProgress(delta) {
+  progress += Math.random() * 0.1;
+  if (progress > 1) {
+    progress = 1;
+  }
+
+  // update the progress bar's width based on the progress
+  progressBar.clear();
+  progressBar.beginFill(0xffffff, 1);
+  progressBar.drawRect(0, 0, progress * 300, 10);
+  progressBar.endFill();
+
+  if (progress === 1) {
+    app.ticker.remove(updateProgress);
+    app.stage.removeChild(loadingContainer);
+  }
+}
+app.ticker.add(updateProgress);
+
 //art variables
 let colorMatrixPurchase = new PIXI.filters.ColorMatrixFilter();
 let colorMatrixMine = new PIXI.filters.ColorMatrixFilter();
