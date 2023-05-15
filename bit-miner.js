@@ -5,9 +5,11 @@ let titleDistance = 80;
 let rackContainerHeight = 721;
 let rackContainerWidth = 796;
 let rackContainerScale = 1;
+let rackContainerYOffset = 120;
 let gameDisplayMonitorWidth = 534;
-let gameDisplayMonitorY = 150;
+let gameDisplayYOffset = 150;
 let lineIndicatorYOffset = 110;
+let lineIndicatorHeight = 100;
 let maskGraphicsHeight = 310;
 let controlsPanelWidth = 764;
 let buttonDimensons = 189;
@@ -16,8 +18,6 @@ let textInfoFontSize = 26;
 let statusFontSize = 36;
 let controlsPanelHeight = 170;
 let fundsTextPosition = 70;
-let gameDisplayYOffset = 150;
-let rackContainerYOffset = 120;
 
 //responsie variables
 if (screenWidth < 550) {
@@ -26,20 +26,21 @@ if (screenWidth < 550) {
   titleFontSize = 50;
   titleDistance = 30;
   rackContainerScale = 1;
-  rackContainerHeight = window.innerheight * 0.75;
+  rackContainerHeight = window.innerHeight * 0.75;
   rackContainerWidth = window.innerWidth;
+  rackContainerYOffset = window.innerHeight - rackContainerHeight;
+  console.log(rackContainerYOffset);
   gameDisplayMonitorWidth = window.innerWidth - 50;
-  gameDisplayMonitorY = window.innerHeight / 2 - 200;
-  lineIndicatorYOffset = 90;
-  maskGraphicsHeight = 275;
+  gameDisplayYOffset = window.innerHeight / 8;
+  lineIndicatorYOffset = 70;
+  lineIndicatorHeight = 70;
+  maskGraphicsHeight = 200;
   controlsPanelWidth = window.innerWidth;
   buttonDimensons = 140;
   buttonYOffset = -150;
   statusFontSize = 20;
   controlsPanelHeight = 100;
   fundsTextPosition = 20;
-  gameDisplayYOffset = 0;
-  rackContainerYOffset = 40;
 }
 
 //game variables
@@ -242,17 +243,18 @@ assetPromise.then((loadedAsset) => {
     gameDisplayMonitor.position.x,
     gameDisplayMonitor.position.y + lineIndicatorYOffset,
     gameDisplayMonitor.width,
-    100
+    lineIndicatorHeight
   );
   lineIndicatorInner.drawRect(
     gameDisplayMonitor.position.x,
     gameDisplayMonitor.position.y + lineIndicatorYOffset,
     gameDisplayMonitor.width,
-    100
+    lineIndicatorHeight
   );
+  
   app.stage.addChild(lineIndicator);
   app.stage.addChild(lineIndicatorInner);
-
+  
   //title
   const titleContainer = new PIXI.Container();
   const gameTitle = new PIXI.Text("BIT-MINER", {
@@ -425,7 +427,7 @@ assetPromise.then((loadedAsset) => {
         gameDisplayMonitor.position.x,
         gameDisplayMonitor.position.y + lineIndicatorYOffset,
         gameDisplayMonitor.width,
-        100
+        lineIndicatorHeight
       );
       if (canPlayGameOver) {
         offSound.play();
@@ -438,7 +440,7 @@ assetPromise.then((loadedAsset) => {
         gameDisplayMonitor.position.x,
         gameDisplayMonitor.position.y + lineIndicatorYOffset,
         gameDisplayMonitor.width,
-        100
+        lineIndicatorHeight
       );
       serverRoomSound.play();
     }
