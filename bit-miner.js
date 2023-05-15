@@ -85,7 +85,7 @@ app.stage.addChild(loadingContainer);
 let progress = 0;
 
 function updateProgress(delta) {
-  progress += Math.random() * 0.1;
+  progress += Math.random() * 0.01;
   if (progress > 1) {
     progress = 1;
   }
